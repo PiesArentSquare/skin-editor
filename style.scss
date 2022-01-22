@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;900&family=Lora:ital@0;1&display=swap');
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  list-style-type: none;
+  font-family: 'Lato', sans-serif;
+}
+
+:root {
+  --bg-color: hsl(12, 16%, 87%);
+  --secondary-color: hsl(21, 12%, 23%);
+  
+  --border-radius: .5rem;
+  --border-radius-sm: .25rem;
+  --inner-border: 3px solid white;
+  --inner-border-sm: 2px solid white;
+  --outer-border: 0 0 0 3px var(--secondary-color);
+  --outer-border-sm: 0 0 0 2px var(--secondary-color);
+
+  --shadow: 0 3px 6px 3px hsla(20, 7%, 26%, 0.3)
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  background-color: white;
+  padding: 0.5rem 2rem;
+  box-shadow: var(--shadow);
+  z-index: 1;
+  color: var(--secondary-color);
+
+  .inner {
+    position: relative;
+  }
+
+  ul {
+    display: flex;
+    
+    li {
+      margin-right: 2rem;
+    }
+  }
+
+  h1 {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50%;
+    display: block;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+}
+
+.main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  background-color: var(--bg-color);
+}
+
+section {
+  width: 50%;
+  height: 100%;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-wrapper {
+  display: flex;
+  flex-grow: 1;
+}
+
+canvas {
+  display: block;
+  margin: auto;
+  width: 40%;
+  background-color: white;
+  border-radius: var(--border-radius);
+  border: var(--inner-border);
+  box-shadow: var(--outer-border), var(--shadow);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: white;
+}
+
+#color-picker {
+  position: relative;
+  height: 2rem;
+  width: 2rem;
+
+  border-radius: var(--border-radius);
+  border: var(--inner-border);
+  box-shadow: var(--outer-border), var(--shadow);
+  background-color: currentColor;
+  cursor: pointer;
+}
+
+.picker-window {
+  cursor: default;
+  position: absolute;
+  display: flex;
+
+  flex-direction: row;
+  flex-shrink: 0;
+  justify-content: space-between;
+
+  height: 16rem;
+  width: 16rem;
+  bottom: 3rem;
+  left: -3px; // account for border-width
+
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: var(--inner-border);
+  box-shadow: var(--outer-border), var(--shadow);
+  background-color: white;
+}
+
+.sl-picker {
+  width: 10rem;
+  height: 10rem;
+
+  border-radius: var(--border-radius-sm);
+  background-image: linear-gradient(#00000000, #000), linear-gradient(90deg, #fff, currentColor);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.sl-handle {
+  position: relative;
+  width: .5rem;
+  height: .5rem;
+  transform: translate(-50%, -50%);
+  
+  background-color: currentColor;
+  border-radius: var(--border-radius-sm);
+  border: var(--inner-border-sm);
+  box-shadow: var(--outer-border-sm);
+}
+
+.slider {
+  position: relative;
+  width: 1rem;
+  height: 10rem;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.h-slider {
+  background: linear-gradient(to bottom, #f00 0%, #ff0 16.66%, #0f0 33.33%, #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
+}
+
+.handle {
+  position: absolute;
+  left: 50%;
+  width: 1.5rem;
+  height: .5rem;
+  transform: translate(-50%, -50%);
+
+  background-color: currentColor;
+  border-radius: var(--border-radius-sm);
+  border: var(--inner-border-sm);
+  box-shadow: var(--outer-border-sm);
+}
+
