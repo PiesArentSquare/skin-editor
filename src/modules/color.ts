@@ -62,7 +62,7 @@ export default class color {
         const b = parseInt(hex.substring(4, 6), 16)
         let a = 1
         if (hex.length > 6) a = parseInt(hex.substring(6, 8), 16) / 255
-        if (r && g && b && a) return undefined
+        if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) return undefined
 
         return new color(r, g, b, a)
     }
@@ -84,7 +84,7 @@ export default class color {
         return "#" + rgba[0] + rgba[1] + rgba[2] + (this.a === 1 ? "" : rgba[3])
     }
 
-    to_hsv(): [h: number, s: number, v: number] {
+    to_hsv(): [h: number, s: number, v: number, a: number] {
         const r = this.r / 255
         const g = this.g / 255
         const b = this.b / 255
@@ -96,13 +96,13 @@ export default class color {
         const v = cmax
 
         if (delta === 0) h = 0
-        else if (cmax === r) h = 60 * (((g - b) / delta) % 6)
+        else if (cmax === r) h = 60 * (((g - b + 6) / delta) % 6)
         else if (cmax === g) h = 60 * (((b - r) / delta) + 2)
         else                 h = 60 * (((r - g) / delta) + 4)
 
         if (cmax === 0) s = 0
         else s = delta / cmax
 
-        return [h, s, v]
+        return [h, s, v, this.a]
     }
 }

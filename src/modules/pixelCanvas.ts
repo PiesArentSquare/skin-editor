@@ -14,7 +14,7 @@ export default class pixelCanvas {
         this.gridWidth = width
         this.gridHeight = height
         this.currentColor = new color(0, 0, 0)
-        this.pixels = Array.from(Array<color>(width * height), () => { return new color(255, 255, 255); })
+        this.pixels = Array.from(Array<color>(width * height), () => { return new color(255, 255, 255) })
 
         const canvas = <HTMLCanvasElement>document.querySelector(htmlSelector)
         this.context = canvas.getContext("2d")
@@ -44,7 +44,7 @@ export default class pixelCanvas {
         }
 
         canvas.addEventListener("mousedown", e => {
-            this.painting = true;
+            this.painting = true
             draw(e)
         })
         canvas.addEventListener("mouseup", () => this.painting = false)
@@ -63,7 +63,7 @@ export default class pixelCanvas {
     }
 
     private paintPixel(x: number, y: number) {
-        this.context.fillStyle = this.currentColor.to_string();
+        this.context.fillStyle = this.currentColor.to_string()
         const xi = Math.floor(x / this.pixelSize)
         const yi = Math.floor(y / this.pixelSize)
         this.context.fillRect(xi * this.pixelSize, yi * this.pixelSize, this.pixelSize, this.pixelSize)
