@@ -76,7 +76,7 @@ export default class color {
             this.r.toString(16),
             this.g.toString(16),
             this.b.toString(16),
-            (this.a * 255).toString(16)
+            (Math.floor(this.a * 255)).toString(16)
         ]
         rgba.forEach((c, i) => {
             if (c.length === 1) rgba[i] = "0" + c
@@ -104,5 +104,9 @@ export default class color {
         else s = delta / cmax
 
         return [h, s, v, this.a]
+    }
+
+    with_full_alpha(): color {
+        return new color(this.r, this.g, this.b, 1)
     }
 }

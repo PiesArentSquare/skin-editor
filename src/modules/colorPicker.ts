@@ -1,8 +1,6 @@
 import color from "./color.js"
 
-interface attributeList {
-    [key: string]: string
-}
+interface attributeList { [key: string]: string }
 
 const addChild = (tag: string, parent: HTMLElement, attributes: attributeList = {}): HTMLElement => {
     const e = document.createElement(tag)
@@ -20,6 +18,7 @@ class verticalSlider {
     private slider: HTMLDivElement
     private handle: HTMLDivElement
     private updateCallback: () => void
+    private defaultCSSDisplay: string
 
     private setHandle(y: number) {
         const rect = this.slider.getBoundingClientRect()
@@ -35,6 +34,7 @@ class verticalSlider {
         this.slider = <HTMLDivElement>addChild("div", parent, {class: `${name}-slider slider`})
         this.handle = <HTMLDivElement>addChild("div", this.slider, {class: `${name}-handle handle`})
         this.updateCallback = updateCallback
+        this.defaultCSSDisplay = this.slider.style.display
 
         let dragging = false
         this.slider.addEventListener("mousedown", e => {
@@ -49,6 +49,7 @@ class verticalSlider {
     }
 
     setHandleColor(color: color) {
+        this.slider.style.color = color.with_full_alpha().to_string()
         this.handle.style.color = color.to_string()
     }
 
@@ -57,17 +58,21 @@ class verticalSlider {
         v *= rect.height
         this.handle.style.top = `${v}px`
     }
+
+    set visible(v: boolean) { this.slider.style.display = v ? this.defaultCSSDisplay : "none" }
 }
 
 class inputField {
     container: HTMLDivElement
     input: HTMLInputElement
+    private defaultCSSDisplay: string
 
     constructor(name: string, parent: HTMLElement, type: string = "number") {
         this.container = <HTMLDivElement>addChild("div", parent, {class: name + "-input"})
         const label = <HTMLLabelElement>addChild("label", this.container, {for: name})
         label.innerText = name + ":"
         this.input = <HTMLInputElement>addChild("input", this.container, {type: type, name: name, id: name})
+        this.defaultCSSDisplay = this.container.style.display
     }
 
     setBounds(min = 0, max = 100): inputField {
@@ -76,17 +81,13 @@ class inputField {
         return this
     }
 
-    get value(): string {
-        return this.input.value
-    }
-    set value(v: string) {
-        this.input.value = v
-    }
+    get value(): string { return this.input.value }
+    set value(v: string) { this.input.value = v }
+
+    set visible(v: boolean) { this.container.style.display = v ? this.defaultCSSDisplay : "none" }
 }
 
-interface optionList {
-    [key: string]: () => void
-}
+interface optionList { [key: string]: () => void }
 
 class dropdownMenu {
     private menu: HTMLSelectElement
@@ -132,8 +133,8 @@ export default class colorPicker {
     private inputs: inputField[] = []
     private hexInput: inputField
     private updateCallback: (c: color) => void
-
-    private hue: number = 0
+    
+    private hue = 0
 
     private createPicker() {
         this.pickerWindow = <HTMLDivElement>addChild("div", this.parent, {class: "picker-window"})
@@ -161,6 +162,15 @@ export default class colorPicker {
     private displayPicker(on: boolean) {
         this.pickerWindow.style.display = on ? this.defaultCSSDisplay : "none"
     }
+    private selectHSV() {
+        this.hexInput.container.style.display = "none"
+        this.hsvInputs.style.display = "flex"
+    }
+    private selectHex() {
+        this.hexInput.container.style.display = "block"
+        this.hsvInputs.style.display = "none"
+    }
+
 
     private setSLHandle(x:number, y:number) {
         const rect = this.slPicker.getBoundingClientRect()
@@ -176,32 +186,27 @@ export default class colorPicker {
         const v = oy / rect.height
 
         this.setSV(s, 1-v)
+        this.setInputFieldsFromHSV(this.hue, s, v, this.currentColor.a)
+        this.updateCallback(this.currentColor)
     }
-
     private setHHandle() {
-        const [h, s, v] = this.currentColor.to_hsv()
-        this.setHSV(this.hSlider.value * 360, s, v)
+        const [h, s, v, a] = this.currentColor.to_hsv()
+        this.setHSV(this.hSlider.value * 360, s, v, a)
     }
-
     private setAHandle() {
-
+        this.setA(1 - this.aSlider.value)
+        const [h, s, v, a] = this.currentColor.to_hsv()
+        this.setInputFieldsFromHSV(h, s, v, a)
+        this.updateCallback(this.currentColor)
     }
 
-    private selectHSV() {
-        this.hexInput.container.style.display = "none"
-        this.hsvInputs.style.display = "flex"
-    }
-
-    private selectHex() {
-        this.hexInput.container.style.display = "block"
-        this.hsvInputs.style.display = "none"
-    }
 
     constructor(parentSelector: string, callback: (c: color) => void) {
         this.updateCallback = callback
         this.parent = document.querySelector(parentSelector)
         this.createPicker()
         this.setColor(new color(255, 0, 0))
+        this.alphaEnabled = false
         this.displayPicker(false)
 
         window.addEventListener("mousedown", e => this.displayPicker(this.parent.contains(<Element>e.target)))
@@ -231,9 +236,10 @@ export default class colorPicker {
             const h = clamp(parseInt(this.inputs[0].value), 0, 360)
             const s = clamp(parseInt(this.inputs[1].value) / 100, 0, 1)
             const v = clamp(parseInt(this.inputs[2].value) / 100, 0, 1)
-            if (validateNumber(h, 0) && validateNumber(s, 1) && validateNumber(v, 2)) {
-                this.setHSV(h, s, v)
-                this.setHandlePositionsFromHSV(h, s, v)
+            const a = clamp(parseInt(this.inputs[3].value) / 100, 0, 1)
+            if (validateNumber(h, 0) && validateNumber(s, 1) && validateNumber(v, 2) && validateNumber(a, 3)) {
+                this.setHSV(h, s, v, a)
+                this.setHandlePositionsFromHSV(h, s, v, a)
             }
         })
 
@@ -249,21 +255,25 @@ export default class colorPicker {
 
     private setHue(hue: number) {
         this.hue = hue
-        const fullSVColor = color.from_hsv(this.hue, 1, 1)
+        const fullSVColor = color.from_hsv(hue, 1, 1)
         this.slPicker.style.color = fullSVColor.to_string()
         this.hSlider.setHandleColor(fullSVColor)
     }
 
-    private setSV(s: number, v: number, setInputs = true) {
-        const c = color.from_hsv(this.hue, s, v)
-        this.currentColor = c
-        this.slHandle.style.color = c.to_string()
-        this.parent.style.color = c.to_string()
-        setInputs && this.setInputFieldsFromHSV(this.hue, s, v)
-        this.updateCallback(c)
+    private setSV(s: number, v: number) {
+        this.currentColor = color.from_hsv(this.hue, s, v, this.currentColor ? this.currentColor.a : 1)
+        this.slHandle.style.color = this.currentColor.with_full_alpha().to_string()
+        this.parent.style.color = this.currentColor.to_string()
+        this.aSlider.setHandleColor(this.currentColor)
     }
 
-    private setHandlePositionsFromHSV(h: number, s: number, v: number) {
+    private setA(alpha: number) {
+        this.currentColor.a = alpha
+        this.parent.style.color = this.currentColor.to_string()
+        this.aSlider.setHandleColor(this.currentColor)
+    }
+
+    private setHandlePositionsFromHSV(h: number, s: number, v: number, a: number) {
         const slPickerRect = this.slPicker.getBoundingClientRect()
         s *= slPickerRect.width
         v = 1 - v
@@ -273,23 +283,36 @@ export default class colorPicker {
         
         h /= 360
         this.hSlider.setNormalizedHandlePosition(h)
+
+        a = 1 - a
+        this.aSlider.setNormalizedHandlePosition(a)
     }
 
-    private setInputFieldsFromHSV(h:number, s:number, v:number) {
+    private setInputFieldsFromHSV(h:number, s:number, v:number, a:number = 1) {
         this.inputs[0].value = `${Math.round(h)}`
         this.inputs[1].value = `${Math.round(s * 100)}`
         this.inputs[2].value = `${Math.round(v * 100)}`
+        this.inputs[3].value = `${Math.round(a * 100)}`
         this.hexInput.value = this.currentColor.to_hex()
     }
 
     setColor(c: color, setInputs = true) {
-        const [h, s, v] = c.to_hsv()
-        this.setHandlePositionsFromHSV(h, s, v)
-        this.setHSV(h, s, v, setInputs)
+        const [h, s, v, a] = c.to_hsv()
+        this.setHandlePositionsFromHSV(h, s, v, a)
+        this.setHSV(h, s, v, a, setInputs)
     }
 
-    setHSV(h:number, s:number, v:number, setInputs = true) {
+    setHSV(h:number, s:number, v:number, a:number = 1, setInputs = true) {
         this.setHue(h)
-        this.setSV(s, v, setInputs)
+        this.setSV(s, v)
+        this.setA(a)
+        setInputs && this.setInputFieldsFromHSV(this.hue, s, v, a)
+        this.updateCallback(this.currentColor)
+    }
+
+    set alphaEnabled(enable: boolean) {
+        this.inputs[3].visible = enable
+        this.aSlider.visible = enable
+        if (!enable) this.setColor(this.currentColor.with_full_alpha())
     }
 }
