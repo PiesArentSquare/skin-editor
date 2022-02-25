@@ -108,7 +108,9 @@ canvas {
   display: block;
   margin: auto;
   width: 40%;
-  background-color: white;
+  background: url(./res/img/transparency.png);
+  background-size: calc(1/var(--canvas-width)*100%);
+  image-rendering: pixelated;
   @extend .double-border-shadow
 }
 

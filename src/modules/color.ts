@@ -109,4 +109,19 @@ export default class color {
     with_full_alpha(): color {
         return new color(this.r, this.g, this.b, 1)
     }
+
+    copy(): color {
+        return new color(this.r, this.g, this.b, this.a)
+    }
+
+    alpha_blend(old: color): color {
+        const oneMinusA = 1 - this.a
+        const newalpha = this.a + old.a * oneMinusA
+        return new color(
+            (this.r * this.a + old.r * old.a * oneMinusA) / newalpha,
+            (this.g * this.a + old.g * old.a * oneMinusA) / newalpha,
+            (this.b * this.a + old.b * old.a * oneMinusA) / newalpha,
+            newalpha
+        )
+    }
 }

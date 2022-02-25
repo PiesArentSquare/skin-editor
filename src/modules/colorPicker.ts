@@ -313,6 +313,14 @@ export default class colorPicker {
     set alphaEnabled(enable: boolean) {
         this.inputs[3].visible = enable
         this.aSlider.visible = enable
-        if (!enable) this.setColor(this.currentColor.with_full_alpha())
+        if (!enable) {
+            if (this.pickerWindow.style.display === this.defaultCSSDisplay)
+                this.setColor(this.currentColor.with_full_alpha())
+            else {
+                this.displayPicker(true)
+                this.setColor(this.currentColor.with_full_alpha())
+                this.displayPicker(false)    
+            }
+        }
     }
 }
