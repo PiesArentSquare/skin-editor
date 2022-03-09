@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
   <script src="dist/index.js" type="module"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dist/styles/style.css">
+
+  <script src="https://kit.fontawesome.com/1336cd4fc4.js" crossorigin="anonymous"></script>
+  
   <title>skin editor ~ untitled*</title>
 </head>
 <body>
@@ -25,7 +29,21 @@
         <canvas id="canvas"></canvas>
       </div>
       <div class="toolbar">
-        <div id="color-picker" />
+        <div id="color-picker"></div>
+        <div class="tools">
+          <input type="radio" name="tool" id="pen" value="pen" checked>
+          <label for="pen">
+            <i class="fa-solid fa-pen fa-lg"></i>
+          </label>
+          <input type="radio" name="tool" id="eraser" value="eraser">
+          <label for="eraser">
+            <i class="fa-solid fa-eraser fa-lg"></i>
+          </label>
+          <input type="radio" name="tool" id="eyedropper" value="eyedropper">
+          <label for="eyedropper">
+            <i class="fa-solid fa-eyedropper fa-lg"></i>
+          </label>
+        </div>
       </div>
     </section>
     <section id="3dview">

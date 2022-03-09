@@ -3,6 +3,8 @@ export default class color {
     g: number
     b: number
     a: number
+
+    static white = new color(255, 255, 255)
     
     constructor(r: number, g: number, b: number, a = 1) {
         this.r = r
@@ -96,7 +98,7 @@ export default class color {
         const v = cmax
 
         if (delta === 0) h = 0
-        else if (cmax === r) h = 60 * (((g - b + 6) / delta) % 6)
+        else if (cmax === r) h = 60 * (((g - b) / delta + 6) % 6)
         else if (cmax === g) h = 60 * (((b - r) / delta) + 2)
         else                 h = 60 * (((r - g) / delta) + 4)
 

@@ -1,28 +1,36 @@
 import color from "./color.js"
-import { command, commandGroup, undoRedoStack } from "./command.js"
+import { command, undoRedoStack } from "./command.js"
 
-class paintPixel implements command {
+export class paintPixel implements command {
     private canvas: pixelCanvas
     private x: number
     private y: number
     private old: color
     private new: color
+    private overwriteAlpha: boolean
 
-    constructor(canvas: pixelCanvas, x: number, y: number, value: color) {
+    constructor(canvas: pixelCanvas, x: number, y: number, value: color, overwriteAlpha: boolean = false) {
         this.canvas = canvas
         this.x = x
         this.y = y
         this.old = canvas.getPixel(x, y)
         this.new = value
+        this.overwriteAlpha = overwriteAlpha
     }
 
     do(): void {
-        this.canvas.paintPixel(this.x, this.y, this.new)
+        this.canvas.paintPixel(this.x, this.y, this.new, this.overwriteAlpha)
     }
 
     undo(): void {
         this.canvas.paintPixel(this.x, this.y, this.old, true)
     }
+}
+
+export interface tool {
+    start(x: number, y: number, canvas: pixelCanvas): void
+    drag(x: number, y: number, canvas: pixelCanvas): void
+    finish(canvas: pixelCanvas): command | void
 }
 
 export default class pixelCanvas {
@@ -38,8 +46,7 @@ export default class pixelCanvas {
     
     private painting: boolean
     private urStack: undoRedoStack
-    private currentStroke: commandGroup
-    private visitedPixels: number[]
+    currentTool: tool
 
     constructor(htmlSelector: string, width: number, height: number) {
         this.gridWidth = width
@@ -48,8 +55,6 @@ export default class pixelCanvas {
         this.pixels = Array.from(Array<color>(width * height), () => { return new color(255, 255, 255, 0) })
 
         this.urStack = new undoRedoStack
-        this.currentStroke = new commandGroup
-        this.visitedPixels = []
 
         const canvas = <HTMLCanvasElement>document.querySelector(htmlSelector)
         canvas.style.setProperty("--canvas-width", `${width}`)
@@ -72,33 +77,36 @@ export default class pixelCanvas {
         resizeCallback()
         window.addEventListener("resize", resizeCallback)
 
-        const draw = (e: MouseEvent) => {
+        const useTool = (e: MouseEvent, start: boolean = false): void => {
             const rect = canvas.getBoundingClientRect()
             const x = Math.floor((e.clientX - rect.left) / this.pixelSize)
             const y = Math.floor((e.clientY - rect.top) / this.pixelSize)
-            const p = this.visitedPixels.find(e => e === x + y * this.gridWidth)
-            if (x < this.gridWidth && y < this.gridHeight && p === undefined) {
-                this.currentStroke.add(new paintPixel(this, x, y, this.currentColor))
-                this.visitedPixels.push(x + y * this.gridWidth)
+            if (x < this.gridWidth && y < this.gridHeight) {
+                if (start) this.currentTool.start(x, y, this)
+                else this.currentTool.drag(x, y, this)
             }
         }
 
+        const finishPainting = () => {
+            const c = this.currentTool.finish(this)
+            if (c) this.urStack.append(c)
+            this.painting = false
+        }
+
         canvas.addEventListener("mousedown", e => {
-            this.painting = true
-            draw(e)
+            if (e.button === 0) {
+                this.painting = true
+                useTool(e, true)
+            } else if (this.painting)
+                finishPainting()
         })
         
         window.addEventListener("mouseup", () => {
-            if (this.painting) {
-                this.urStack.append(this.currentStroke.copy())
-                this.currentStroke.reset()
-                this.visitedPixels.length = 0
-                this.painting = false
-            }
+            if (this.painting) finishPainting()
         })
 
         canvas.addEventListener("mousemove", e => {
-            if (this.painting) draw(e)
+            if (this.painting) useTool(e)
         })
     }
 
@@ -113,32 +121,19 @@ export default class pixelCanvas {
     }
 
     paintPixel(x: number, y: number, c: color, overwriteAlpha = false) {
-        if (c.a === 1) {
+        if (c.a === 1 || overwriteAlpha) {
             this.pixels[x + y * this.gridWidth] = c.copy()
-            this.context.fillStyle = c.to_string()
-            this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
-        } else {
-            if (overwriteAlpha) {
-                this.pixels[x + y * this.gridWidth] = c.copy()
-                this.repaint()
-            } else {
-                this.pixels[x + y * this.gridWidth] = c.alpha_blend(this.pixels[x + y * this.gridWidth])
-                this.context.fillStyle = c.to_string()
-                this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
-            }
-        }
+            this.context.clearRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
+        } else
+            this.pixels[x + y * this.gridWidth] = c.alpha_blend(this.pixels[x + y * this.gridWidth])
         
+        this.context.fillStyle = c.to_string()
+        this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
     }
 
-    getPixel(x: number, y: number) {
-        return this.pixels[x + y * this.gridWidth].copy()
-    }
-
-    undo() {
-        this.urStack.undo()
-    }
-
-    redo() {
-        this.urStack.redo()
-    }
+    getPixel(x: number, y: number) { return this.pixels[x + y * this.gridWidth].copy() }
+    get width() { return this.gridWidth; }
+    get height() { return this.gridHeight; }
+    undo() { this.urStack.undo() }
+    redo() { this.urStack.redo() }
 }

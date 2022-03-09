@@ -65,13 +65,14 @@ class verticalSlider {
 class inputField {
     container: HTMLDivElement
     input: HTMLInputElement
+    label: HTMLLabelElement
     private defaultCSSDisplay: string
 
     constructor(name: string, parent: HTMLElement, type: string = "number") {
         this.container = <HTMLDivElement>addChild("div", parent, {class: name + "-input"})
-        const label = <HTMLLabelElement>addChild("label", this.container, {for: name})
-        label.innerText = name + ":"
         this.input = <HTMLInputElement>addChild("input", this.container, {type: type, name: name, id: name})
+        this.label = <HTMLLabelElement>addChild("label", this.container, {for: name})
+        this.label.innerText = name
         this.defaultCSSDisplay = this.container.style.display
     }
 
@@ -108,6 +109,7 @@ class dropdownMenu {
             this.mode = this.menu.value
             this.callbacks[this.menu.value]()
         })
+        addChild("i", container, {class: "fa-solid fa-angle-down"})
     }
 
     select(option: string) {
@@ -118,7 +120,7 @@ class dropdownMenu {
 
 export default class colorPicker {
 
-    currentColor: color
+    private currentColor: color
 
     private parent: HTMLElement
     private pickerWindow: HTMLDivElement
@@ -149,10 +151,10 @@ export default class colorPicker {
         this.inputArea = <HTMLDivElement>addChild("div", this.pickerWindow, {class: "input-area"})
         this.inputType = new dropdownMenu({hsv: this.selectHSV.bind(this), hex: this.selectHex.bind(this)}, this.inputArea, "input-type")
         this.hsvInputs = <HTMLDivElement>addChild("div", this.inputArea, {class: "hsva-inputs"})
-        this.inputs.push(new inputField("h", this.hsvInputs).setBounds(0, 360))
-        this.inputs.push(new inputField("s", this.hsvInputs).setBounds())
-        this.inputs.push(new inputField("v", this.hsvInputs).setBounds())
-        this.inputs.push(new inputField("a", this.hsvInputs).setBounds())
+        this.inputs.push(new inputField("hue", this.hsvInputs).setBounds(0, 360))
+        this.inputs.push(new inputField("saturation", this.hsvInputs).setBounds())
+        this.inputs.push(new inputField("value", this.hsvInputs).setBounds())
+        this.inputs.push(new inputField("alpha", this.hsvInputs).setBounds())
         
         this.hexInput = new inputField("hex", this.inputArea, "text")
 
@@ -183,9 +185,9 @@ export default class colorPicker {
         this.slHandle.style.top = `${oy}px`
 
         const s = ox / rect.width
-        const v = oy / rect.height
+        const v = 1 - (oy / rect.height)
 
-        this.setSV(s, 1-v)
+        this.setSV(s, v)
         this.setInputFieldsFromHSV(this.hue, s, v, this.currentColor.a)
         this.updateCallback(this.currentColor)
     }
@@ -274,6 +276,9 @@ export default class colorPicker {
     }
 
     private setHandlePositionsFromHSV(h: number, s: number, v: number, a: number) {
+        const enabled = this.pickerWindow.style.display === this.defaultCSSDisplay
+        if (!enabled) this.displayPicker(true)
+
         const slPickerRect = this.slPicker.getBoundingClientRect()
         s *= slPickerRect.width
         v = 1 - v
@@ -286,6 +291,8 @@ export default class colorPicker {
 
         a = 1 - a
         this.aSlider.setNormalizedHandlePosition(a)
+
+        if (!enabled) this.displayPicker(false)
     }
 
     private setInputFieldsFromHSV(h:number, s:number, v:number, a:number = 1) {
@@ -302,6 +309,8 @@ export default class colorPicker {
         this.setHSV(h, s, v, a, setInputs)
     }
 
+    getColor() { return this.currentColor; }
+
     setHSV(h:number, s:number, v:number, a:number = 1, setInputs = true) {
         this.setHue(h)
         this.setSV(s, v)
@@ -314,13 +323,7 @@ export default class colorPicker {
         this.inputs[3].visible = enable
         this.aSlider.visible = enable
         if (!enable) {
-            if (this.pickerWindow.style.display === this.defaultCSSDisplay)
-                this.setColor(this.currentColor.with_full_alpha())
-            else {
-                this.displayPicker(true)
-                this.setColor(this.currentColor.with_full_alpha())
-                this.displayPicker(false)    
-            }
+            this.setColor(this.currentColor.with_full_alpha())
         }
     }
 }
