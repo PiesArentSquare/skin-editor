@@ -34,6 +34,10 @@ export class commandGroup implements command {
         return copy
     }
 
+    is_empty(): boolean {
+        return this.stack.length === 0
+    }
+
 }
 
 export class undoRedoStack {

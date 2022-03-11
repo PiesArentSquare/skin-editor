@@ -5,7 +5,7 @@ import toolbar from "./modules/toolbar.js"
 import {pen_tool, eraser_tool, eyedropper_tool, fill_tool} from "./tools.js"
 
 window.addEventListener("load", () => {
-    const canvas = new pixelCanvas("#canvas", 8, 8)
+    const canvas = new pixelCanvas("#canvas", 8, 12)
     const picker = new colorPicker("#color-picker", c => canvas.currentColor = c.copy())
     
     const tools = new toolbar(".tools", canvas)

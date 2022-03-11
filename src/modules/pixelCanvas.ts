@@ -1,5 +1,5 @@
 import color from "./color.js"
-import { command, undoRedoStack } from "./command.js"
+import { command, commandGroup, undoRedoStack } from "./command.js"
 
 export class paintPixel implements command {
     private canvas: pixelCanvas
@@ -89,7 +89,7 @@ export default class pixelCanvas {
 
         const finishPainting = () => {
             const c = this.currentTool.finish(this)
-            if (c) this.urStack.append(c)
+            if (c && !(<commandGroup>c).is_empty()) this.urStack.append(c)
             this.painting = false
         }
 

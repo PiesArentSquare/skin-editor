@@ -3,15 +3,21 @@ import color from "./modules/color.js"
 import colorPicker from "./modules/colorPicker"
 import {command, commandGroup} from "./modules/command.js"
 
-abstract class brush_tool implements tool {
-    protected currentStroke: commandGroup
-    protected visitedPixels: number[]
-    protected abstract draw(x: number, y: number, canvas: pixelCanvas): void
+const colorWillChange = (oldC: color, newC: color): boolean => {
+    return !(oldC.equals(newC) && newC.a === 1)
+}
 
-    constructor() {
-        this.currentStroke = new commandGroup
-        this.visitedPixels = []
+abstract class brush_tool implements tool {
+    protected currentStroke = new commandGroup
+    protected visitedPixels = Array<number>()
+    protected draw(x: number, y: number, canvas: pixelCanvas): void {
+        const p = this.visitedPixels.find(e => e === x + y * canvas.width)
+        if (p === undefined && colorWillChange(canvas.getPixel(x, y), this.useColor(canvas))) {
+            this.currentStroke.add(new paintPixel(canvas, x, y, this.useColor(canvas)))
+            this.visitedPixels.push(x + y * canvas.width)
+        }
     }
+    protected abstract useColor(canvas: pixelCanvas): color
 
     start(x: number, y: number, canvas: pixelCanvas): void { this.draw(x, y, canvas) }
     drag(x: number, y: number, canvas: pixelCanvas): void { this.draw(x, y, canvas) }
@@ -24,22 +30,14 @@ abstract class brush_tool implements tool {
 }
 
 export class pen_tool extends brush_tool {
-    protected draw(x: number, y: number, canvas: pixelCanvas) {
-        const p = this.visitedPixels.find(e => e === x + y * canvas.width)
-        if (p === undefined) {
-            this.currentStroke.add(new paintPixel(canvas, x, y, canvas.currentColor))
-            this.visitedPixels.push(x + y * canvas.width)
-        }
+    protected useColor(canvas: pixelCanvas): color {
+        return canvas.currentColor
     }
 }
 
 export class eraser_tool extends brush_tool {
-    protected draw(x: number, y: number, canvas: pixelCanvas) {
-        const p = this.visitedPixels.find(e => e === x + y * canvas.width)
-        if (p === undefined) {
-            this.currentStroke.add(new paintPixel(canvas, x, y, color.white))
-            this.visitedPixels.push(x + y * canvas.width)
-        }
+    protected useColor(canvas: pixelCanvas): color {
+        return color.white
     }
 }
 
@@ -80,7 +78,7 @@ export class fill_tool implements tool {
 
     start(x: number, y: number, canvas: pixelCanvas): void {
         let old = canvas.getPixel(x, y)
-        if (old.equals(canvas.currentColor)) return
+        if (!colorWillChange(old, canvas.currentColor)) return
         this.fill_impl(x, y, old, canvas)
     }
     drag(x: number, y: number, canvas: pixelCanvas): void {}
