@@ -1,4 +1,4 @@
-@import 'common';
+@use 'common';
 
 #color-picker {
   position: relative;
@@ -6,8 +6,8 @@
   width: 2rem;
   margin-right: 3rem;
 
-  @include double-border-shadow;
-  @include transparent-color;
+  @include common.double-border-shadow;
+  @include common.transparent-color;
   cursor: pointer;
 
   .picker-window {
@@ -18,7 +18,7 @@
     left: -3px; // account for border-width
   
     padding: 1rem;
-    @include double-border-shadow;
+    @include common.double-border-shadow;
     background-color: white;
     color: black;  
   }
@@ -52,7 +52,7 @@
     transform: translate(-50%, -50%);
     
     background-color: currentColor;
-    @include double-border-sm;
+    @include common.double-border-sm;
   }
   
   .slider {
@@ -70,7 +70,7 @@
   }
   
   .a-slider {
-    background: linear-gradient(to bottom, currentColor, transparent), $tranparency;
+    background: linear-gradient(to bottom, currentColor, transparent), common.$tranparency;
     background-size: .5rem;
     image-rendering: pixelated;
   }
@@ -82,8 +82,8 @@
     height: .5rem;
     transform: translate(-50%, -50%);
   
-    @include transparent-color;
-    @include double-border-sm;
+    @include common.transparent-color;
+    @include common.double-border-sm;
   }
   
   .input-area {
@@ -111,7 +111,7 @@
     }
   
     .hex-input, .hsva-inputs {
-      @include double-border-sm;
+      @include common.double-border-sm;
       div {
         width: 100%;
       }

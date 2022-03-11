@@ -1,5 +1,5 @@
-@import "common";
-@import 'colorPicker';
+@use "common";
+@use 'colorPicker';
 
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;900&family=Lora:ital@0;1&display=swap');
 
@@ -73,9 +73,9 @@ canvas {
   display: block;
   margin: auto;
   width: 40%;
-  @include transparent;
+  @include common.transparent;
   background-size: calc(1/var(--canvas-width)*100%);
-  @include double-border-shadow;
+  @include common.double-border-shadow;
 }
 
 .toolbar {

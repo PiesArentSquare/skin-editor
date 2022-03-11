@@ -207,7 +207,7 @@ export default class colorPicker {
         this.updateCallback = callback
         this.parent = document.querySelector(parentSelector)
         this.createPicker()
-        this.setColor(new color(255, 0, 0))
+        this.setColor(color.red)
         this.alphaEnabled = false
         this.displayPicker(false)
 

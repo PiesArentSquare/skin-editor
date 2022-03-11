@@ -13,7 +13,7 @@ export class paintPixel implements command {
         this.canvas = canvas
         this.x = x
         this.y = y
-        this.old = canvas.getPixel(x, y)
+        this.old = canvas.getPixel(x, y).copy()
         this.new = value
         this.overwriteAlpha = overwriteAlpha
     }
@@ -131,7 +131,7 @@ export default class pixelCanvas {
         this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
     }
 
-    getPixel(x: number, y: number) { return this.pixels[x + y * this.gridWidth].copy() }
+    getPixel(x: number, y: number) { return this.pixels[x + y * this.gridWidth] }
     get width() { return this.gridWidth; }
     get height() { return this.gridHeight; }
     undo() { this.urStack.undo() }

@@ -5,6 +5,7 @@ export default class color {
     a: number
 
     static white = new color(255, 255, 255)
+    static red = new color(255, 0, 0)
     
     constructor(r: number, g: number, b: number, a = 1) {
         this.r = r
@@ -125,5 +126,12 @@ export default class color {
             (this.b * this.a + old.b * old.a * oneMinusA) / newalpha,
             newalpha
         )
+    }
+
+    equals(other: color): boolean {
+        return (other.r === this.r &&
+            other.g === this.g &&
+            other.b === this.b &&
+            other.a === this.a)
     }
 }
