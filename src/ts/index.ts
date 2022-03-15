@@ -1,6 +1,6 @@
-import pixelCanvas from "./modules/pixelCanvas.js"
-import colorPicker from "./modules/colorPicker.js"
-import toolbar from "./modules/toolbar.js"
+import pixelCanvas from "./components/pixel_canvas.js"
+import colorPicker from "./components/color_picker.js"
+import toolbar from "./components/toolbar.js"
 
 import {pen_tool, eraser_tool, eyedropper_tool, fill_tool} from "./tools.js"
 

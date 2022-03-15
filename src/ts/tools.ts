@@ -1,7 +1,7 @@
-import pixelCanvas, {tool, paintPixel} from "./modules/pixelCanvas.js"
-import color from "./modules/color.js"
-import colorPicker from "./modules/colorPicker"
-import {command, commandGroup} from "./modules/command.js"
+import pixelCanvas, {tool, paintPixel} from "./components/pixel_canvas.js"
+import color from "./components/color.js"
+import colorPicker from "./components/color_picker"
+import {command, commandGroup} from "./components/command.js"
 
 const colorWillChange = (oldC: color, newC: color): boolean => {
     return !(oldC.equals(newC) && newC.a === 1)

@@ -1,4 +1,4 @@
-import pixelCanvas, {tool} from "./pixelCanvas"
+import pixelCanvas, {tool} from "./pixel_canvas"
 
 export default class toolbar {
     private parent: HTMLElement

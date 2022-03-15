@@ -4,8 +4,8 @@
         "module": "esnext",
         "target": "esnext",
         "lib": ["dom", "esnext"],
-        "rootDir": "src",
-        "outDir": "dist",
+        "rootDir": "src/ts",
+        "outDir": "public/js",
         "noImplicitAny": true
     },
     "include": ["./**/*"]
