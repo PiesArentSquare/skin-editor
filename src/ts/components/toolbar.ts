@@ -12,9 +12,9 @@ export default class toolbar {
         this.keybinds = new Map<string, number>()
         this.values = []
         this.canvas = canvas
-        this.parent = document.querySelector(parentSelector)
+        this.parent = document.querySelector(parentSelector)!
 
-        this.parent.childNodes.forEach((c, i) => {
+        this.parent.childNodes.forEach(c => {
             c.addEventListener("click", () => {
                 let id = (<HTMLElement>c).id
                 if (id !== "") this.setActiveFromId(id)
@@ -28,20 +28,32 @@ export default class toolbar {
         this.values.push(value)
     }
 
-    getFromId(id: string) { return this.values[this.ids.get(id)]}
-    getFromKeybind(keybind: string) { return this.values[this.keybinds.get(keybind)]}
+    getFromId(id: string) {
+        const i = this.ids.get(id)
+        return (i !== undefined) ? this.values[i] : undefined
+    }
+    getFromKeybind(keybind: string) {
+        const i = this.ids.get(keybind)
+        return (i !== undefined) ? this.values[i] : undefined
+    }
 
     setActiveFromId(id: string) {
-        this.canvas.currentTool = this.getFromId(id);
-        (<HTMLInputElement>document.getElementById(id)).checked = true
+        const tool = this.getFromId(id)
+        if (tool) {
+            this.canvas.currentTool = tool;
+            (<HTMLInputElement>document.getElementById(id)).checked = true
+        }
     }
 
     setActiveFromKeybind(keybind: string) {
-        this.canvas.currentTool = this.getFromKeybind(keybind)
-        const index = this.keybinds.get(keybind)
-        for (let [id, i] of this.ids.entries()) {
-            if (index === i)
-                (<HTMLInputElement>document.getElementById(id)).checked = true
+        const tool = this.getFromKeybind(keybind)
+        if (tool) {
+            this.canvas.currentTool = tool
+            const index = this.keybinds.get(keybind)
+            for (let [id, i] of this.ids.entries()) {
+                if (index === i)
+                    (<HTMLInputElement>document.getElementById(id)).checked = true
+            }
         }
     }
 }

@@ -39,15 +39,15 @@ export default class pixelCanvas {
     
     private gridWidth: number
     private gridHeight: number
-    private pixelSize: number
+    private pixelSize: number = 0
     
     private pixels: color[]
     private context: CanvasRenderingContext2D
     private output_canvas: CanvasRenderingContext2D
     
-    private painting: boolean
+    private painting: boolean = false
     private urStack: undoRedoStack
-    currentTool: tool
+    currentTool: tool | undefined
 
     constructor(htmlSelector: string, width: number, height: number) {
         this.gridWidth = width
@@ -59,12 +59,12 @@ export default class pixelCanvas {
 
         const canvas = <HTMLCanvasElement>document.querySelector(htmlSelector)
         canvas.style.setProperty("--canvas-width", `${width}`)
-        this.context = canvas.getContext("2d")
+        this.context = canvas.getContext("2d")!
 
         const output = document.createElement("canvas")
         output.width = width
         output.height = height
-        this.output_canvas = output.getContext("2d")
+        this.output_canvas = output.getContext("2d")!
         
         const defaultCSSWidth = canvas.style.width
         const resizeCallback = () => {
@@ -88,13 +88,13 @@ export default class pixelCanvas {
             const x = Math.floor((e.clientX - rect.left) / this.pixelSize)
             const y = Math.floor((e.clientY - rect.top) / this.pixelSize)
             if (x < this.gridWidth && y < this.gridHeight) {
-                if (start) this.currentTool.start(x, y, this)
-                else this.currentTool.drag(x, y, this)
+                if (start) this.currentTool?.start(x, y, this)
+                else this.currentTool?.drag(x, y, this)
             }
         }
 
         const finishPainting = () => {
-            const c = this.currentTool.finish(this)
+            const c = this.currentTool?.finish(this)
             if (c && !(<commandGroup>c).is_empty()) this.urStack.append(c)
             this.painting = false
         }

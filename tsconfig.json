@@ -1,12 +1,19 @@
 {
     "compilerOptions": {
-        "watch": true,
-        "module": "esnext",
-        "target": "esnext",
-        "lib": ["dom", "esnext"],
-        "rootDir": "src/ts",
-        "outDir": "public/js",
-        "noImplicitAny": true
+      "target": "esnext",
+      "useDefineForClassFields": true,
+      "module": "esnext",
+      "lib": ["esnext", "dom"],
+      "moduleResolution": "node",
+      "strict": true,
+      "sourceMap": true,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "noEmit": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noImplicitReturns": true
     },
-    "include": ["./**/*"]
-}
+    "include": ["src"]
+  }
+  

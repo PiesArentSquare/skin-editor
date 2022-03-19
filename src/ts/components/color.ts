@@ -15,11 +15,9 @@ export default class color {
     }
 
     private static from_hcxm(h:number, c: number, x:number, m: number, a: number): color {
-        let r: number, g: number, b: number
+        let r: number = c, g: number = x, b: number = 0
         
-        if (0 <= h && h < 60) {
-            r = c; g = x; b = 0;  
-        } else if (60 <= h && h < 120) {
+        if (60 <= h && h < 120) {
             r = x; g = c; b = 0;
         } else if (120 <= h && h < 180) {
             r = 0; g = c; b = x;

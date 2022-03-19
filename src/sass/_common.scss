@@ -12,7 +12,7 @@
   --shadow: 0 3px 6px hsla(20, 7%, 26%, 0.3);
 }
 
-$tranparency: url("/assets/img/transparency.png");
+$tranparency: url("/src/assets/img/transparency.png");
 
 @mixin double-border {
   border-radius: var(--border-radius);

@@ -21,7 +21,7 @@ abstract class brush_tool implements tool {
 
     start(x: number, y: number, canvas: pixelCanvas): void { this.draw(x, y, canvas) }
     drag(x: number, y: number, canvas: pixelCanvas): void { this.draw(x, y, canvas) }
-    finish(canvas: pixelCanvas): command {
+    finish(_canvas: pixelCanvas): command {
         const c = this.currentStroke.copy()
         this.currentStroke.reset()
         this.visitedPixels.length = 0
@@ -36,7 +36,7 @@ export class pen_tool extends brush_tool {
 }
 
 export class eraser_tool extends brush_tool {
-    protected useColor(canvas: pixelCanvas): color {
+    protected useColor(_canvas: pixelCanvas): color {
         return color.white
     }
 }
@@ -44,9 +44,9 @@ export class eraser_tool extends brush_tool {
 export class eyedropper_tool implements tool {
 
     private picker: colorPicker
-    private onFinish: () => void
+    private onFinish: (() => void) | undefined
 
-    constructor(picker: colorPicker, onFinish: () => void = undefined) {
+    constructor(picker: colorPicker, onFinish?: () => void) {
         this.picker = picker
         this.onFinish = onFinish
     }
@@ -57,7 +57,7 @@ export class eyedropper_tool implements tool {
     drag(x: number, y: number, canvas: pixelCanvas): void {
         this.picker.setColor(canvas.getPixel(x, y))
     }
-    finish(canvas: pixelCanvas): void {
+    finish(_canvas: pixelCanvas): void {
         if(this.onFinish) this.onFinish()
     }
 }
@@ -81,8 +81,8 @@ export class fill_tool implements tool {
         if (!colorWillChange(old, canvas.currentColor)) return
         this.fill_impl(x, y, old, canvas)
     }
-    drag(x: number, y: number, canvas: pixelCanvas): void {}
-    finish(canvas: pixelCanvas): void | command {
+    drag(_x: number, _y: number, _canvas: pixelCanvas): void {}
+    finish(_canvas: pixelCanvas): void | command {
         const p = this.pixels.copy()
         this.pixels.reset()
         return p

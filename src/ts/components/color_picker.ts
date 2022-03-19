@@ -13,7 +13,7 @@ const addChild = (tag: string, parent: HTMLElement, attributes: attributeList = 
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
 
 class verticalSlider {
-    value: number
+    value: number = 0
 
     private slider: HTMLDivElement
     private handle: HTMLDivElement
@@ -94,7 +94,7 @@ class dropdownMenu {
     private menu: HTMLSelectElement
     private optionIndex: Map<string, number> = new Map()
     private callbacks: optionList
-    mode: string
+    mode: string = ""
 
     constructor(options: optionList = {}, parent: HTMLElement, className: string = "") {
         const container = <HTMLDivElement>addChild("div", parent, className ? {class: className} : {})
@@ -113,14 +113,15 @@ class dropdownMenu {
     }
 
     select(option: string) {
-        this.menu.selectedIndex = this.optionIndex.get(option)
+        const i = this.optionIndex.get(option)
+        if (i !== undefined) this.menu.selectedIndex = i
         this.callbacks[option]()
     }
 }
 
 export default class colorPicker {
 
-    private currentColor: color
+    private currentColor: color = color.red
 
     private parent: HTMLElement
     private pickerWindow: HTMLDivElement
@@ -137,29 +138,6 @@ export default class colorPicker {
     private updateCallback: (c: color) => void
     
     private hue = 0
-
-    private createPicker() {
-        this.pickerWindow = <HTMLDivElement>addChild("div", this.parent, {class: "picker-window"})
-        this.defaultCSSDisplay = this.pickerWindow.style.display
-        
-        const sliderArea = <HTMLDivElement>addChild("div", this.pickerWindow, {class: "slider-area"})
-        this.slPicker = <HTMLDivElement>addChild("div", sliderArea, {class: "sl-picker"})
-        this.slHandle = <HTMLDivElement>addChild("div", this.slPicker, {class: "sl-handle"})
-        this.hSlider = new verticalSlider("h", sliderArea, this.setHHandle.bind(this))
-        this.aSlider = new verticalSlider("a", sliderArea, this.setAHandle.bind(this))
-
-        this.inputArea = <HTMLDivElement>addChild("div", this.pickerWindow, {class: "input-area"})
-        this.inputType = new dropdownMenu({hsv: this.selectHSV.bind(this), hex: this.selectHex.bind(this)}, this.inputArea, "input-type")
-        this.hsvInputs = <HTMLDivElement>addChild("div", this.inputArea, {class: "hsva-inputs"})
-        this.inputs.push(new inputField("hue", this.hsvInputs).setBounds(0, 360))
-        this.inputs.push(new inputField("saturation", this.hsvInputs).setBounds())
-        this.inputs.push(new inputField("value", this.hsvInputs).setBounds())
-        this.inputs.push(new inputField("alpha", this.hsvInputs).setBounds())
-        
-        this.hexInput = new inputField("hex", this.inputArea, "text")
-
-        this.inputType.select("hsv")
-    }
 
     private displayPicker(on: boolean) {
         this.pickerWindow.style.display = on ? this.defaultCSSDisplay : "none"
@@ -192,7 +170,7 @@ export default class colorPicker {
         this.updateCallback(this.currentColor)
     }
     private setHHandle() {
-        const [h, s, v, a] = this.currentColor.to_hsv()
+        const [_h, s, v, a] = this.currentColor.to_hsv()
         this.setHSV(this.hSlider.value * 360, s, v, a)
     }
     private setAHandle() {
@@ -205,8 +183,29 @@ export default class colorPicker {
 
     constructor(parentSelector: string, callback: (c: color) => void) {
         this.updateCallback = callback
-        this.parent = document.querySelector(parentSelector)
-        this.createPicker()
+        this.parent = document.querySelector(parentSelector)!
+        
+        this.pickerWindow = <HTMLDivElement>addChild("div", this.parent, {class: "picker-window"})
+        this.defaultCSSDisplay = this.pickerWindow.style.display
+        
+        const sliderArea = <HTMLDivElement>addChild("div", this.pickerWindow, {class: "slider-area"})
+        this.slPicker = <HTMLDivElement>addChild("div", sliderArea, {class: "sl-picker"})
+        this.slHandle = <HTMLDivElement>addChild("div", this.slPicker, {class: "sl-handle"})
+        this.hSlider = new verticalSlider("h", sliderArea, this.setHHandle.bind(this))
+        this.aSlider = new verticalSlider("a", sliderArea, this.setAHandle.bind(this))
+
+        this.inputArea = <HTMLDivElement>addChild("div", this.pickerWindow, {class: "input-area"})
+        this.inputType = new dropdownMenu({hsv: this.selectHSV.bind(this), hex: this.selectHex.bind(this)}, this.inputArea, "input-type")
+        this.hsvInputs = <HTMLDivElement>addChild("div", this.inputArea, {class: "hsva-inputs"})
+        this.inputs.push(new inputField("hue", this.hsvInputs).setBounds(0, 360))
+        this.inputs.push(new inputField("saturation", this.hsvInputs).setBounds())
+        this.inputs.push(new inputField("value", this.hsvInputs).setBounds())
+        this.inputs.push(new inputField("alpha", this.hsvInputs).setBounds())
+        
+        this.hexInput = new inputField("hex", this.inputArea, "text")
+
+        this.inputType.select("hsv")
+
         this.setColor(color.red)
         this.alphaEnabled = false
         this.displayPicker(false)
