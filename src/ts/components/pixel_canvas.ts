@@ -43,6 +43,7 @@ export default class pixelCanvas {
     
     private pixels: color[]
     private context: CanvasRenderingContext2D
+    private output_canvas: CanvasRenderingContext2D
     
     private painting: boolean
     private urStack: undoRedoStack
@@ -59,6 +60,11 @@ export default class pixelCanvas {
         const canvas = <HTMLCanvasElement>document.querySelector(htmlSelector)
         canvas.style.setProperty("--canvas-width", `${width}`)
         this.context = canvas.getContext("2d")
+
+        const output = document.createElement("canvas")
+        output.width = width
+        output.height = height
+        this.output_canvas = output.getContext("2d")
         
         const defaultCSSWidth = canvas.style.width
         const resizeCallback = () => {
@@ -129,6 +135,16 @@ export default class pixelCanvas {
         
         this.context.fillStyle = c.to_string()
         this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
+    }
+
+    generateImageURL(): string {
+        this.pixels.forEach((c, i) => {
+            const x = i % this.gridWidth
+            const y = Math.floor(i / this.gridWidth)
+            this.output_canvas.fillStyle = c.to_string()
+            this.output_canvas.fillRect(x, y, 1, 1)
+        })
+        return this.output_canvas.canvas.toDataURL();
     }
 
     getPixel(x: number, y: number) { return this.pixels[x + y * this.gridWidth] }
