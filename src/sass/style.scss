@@ -67,15 +67,15 @@ section {
 .canvas-wrapper {
   display: flex;
   flex-grow: 1;
-}
-
-canvas {
-  display: block;
-  margin: auto;
-  width: 40%;
-  @include common.transparent;
-  background-size: calc(1/var(--canvas-width)*100%);
-  @include common.double-border-shadow;
+  
+  canvas {
+    display: block;
+    margin: auto;
+    width: 40%;
+    @include common.transparent;
+    background-size: calc(1/var(--canvas-width)*100%);
+    @include common.double-border-shadow;
+  }
 }
 
 .toolbar {

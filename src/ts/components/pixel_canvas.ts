@@ -48,6 +48,7 @@ export default class pixelCanvas {
     private painting: boolean = false
     private urStack: undoRedoStack
     currentTool: tool | undefined
+    onUpdate: (() => void) | undefined
 
     constructor(htmlSelector: string, width: number, height: number) {
         this.gridWidth = width
@@ -62,8 +63,8 @@ export default class pixelCanvas {
         this.context = canvas.getContext("2d")!
 
         const output = document.createElement("canvas")
-        output.width = width
-        output.height = height
+        output.width = 64
+        output.height = 64
         this.output_canvas = output.getContext("2d")!
         
         const defaultCSSWidth = canvas.style.width
@@ -135,6 +136,8 @@ export default class pixelCanvas {
         
         this.context.fillStyle = c.to_string()
         this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
+
+        if (this.onUpdate) this.onUpdate()
     }
 
     generateImageURL(): string {
@@ -142,7 +145,7 @@ export default class pixelCanvas {
             const x = i % this.gridWidth
             const y = Math.floor(i / this.gridWidth)
             this.output_canvas.fillStyle = c.to_string()
-            this.output_canvas.fillRect(x, y, 1, 1)
+            this.output_canvas.fillRect(x + 20, y + 20, 1, 1)
         })
         return this.output_canvas.canvas.toDataURL();
     }
