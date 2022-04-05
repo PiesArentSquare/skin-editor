@@ -5,8 +5,11 @@ import toolbar from "./components/toolbar.js"
 import {pen_tool, eraser_tool, eyedropper_tool, fill_tool} from "./tools.js"
 
 import createSkinViewer from "./skin_viewer.js"
+import skin from "./skin.js"
 
-const canvas = new pixelCanvas("#canvas", 8, 12)
+const steve = new skin(false)
+
+const canvas = new pixelCanvas("#canvas", steve.body.outer.front)
 const picker = new colorPicker("#color-picker", c => canvas.currentColor = c.copy())
 
 const tools = new toolbar(".tools", canvas)
@@ -35,4 +38,7 @@ window.addEventListener("keydown", e => {
 })
 
 const threedview = createSkinViewer(<HTMLDivElement>document.querySelector("#threedview"), false)
-if (threedview) canvas.onUpdate = () => threedview.setTexture(canvas.generateImageURL())
+if (threedview) {
+    threedview.setTexture(steve.getImageURL())
+    canvas.onUpdate = () => { threedview.setTexture(steve.getImageURL()) }
+}

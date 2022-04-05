@@ -1,5 +1,6 @@
 import color from "./color.js"
 import { command, commandGroup, undoRedoStack } from "./command.js"
+import { skin_section } from "../skin"
 
 export class paintPixel implements command {
     private canvas: pixelCanvas
@@ -41,31 +42,25 @@ export default class pixelCanvas {
     private gridHeight: number
     private pixelSize: number = 0
     
-    private pixels: color[]
+    private section: skin_section
     private context: CanvasRenderingContext2D
-    private output_canvas: CanvasRenderingContext2D
     
     private painting: boolean = false
     private urStack: undoRedoStack
     currentTool: tool | undefined
     onUpdate: (() => void) | undefined
 
-    constructor(htmlSelector: string, width: number, height: number) {
-        this.gridWidth = width
-        this.gridHeight = height
+    constructor(htmlSelector: string, section: skin_section) {
+        this.gridWidth = section.width
+        this.gridHeight = section.height
         this.currentColor = new color(0, 0, 0)
-        this.pixels = Array.from(Array<color>(width * height), () => { return new color(255, 255, 255, 0) })
+        this.section = section
 
         this.urStack = new undoRedoStack
 
         const canvas = <HTMLCanvasElement>document.querySelector(htmlSelector)
-        canvas.style.setProperty("--canvas-width", `${width}`)
+        canvas.style.setProperty("--canvas-width", `${this.gridWidth}`)
         this.context = canvas.getContext("2d")!
-
-        const output = document.createElement("canvas")
-        output.width = 64
-        output.height = 64
-        this.output_canvas = output.getContext("2d")!
         
         const defaultCSSWidth = canvas.style.width
         const resizeCallback = () => {
@@ -74,7 +69,7 @@ export default class pixelCanvas {
             // set the canvas pixel-perfect width nearest to the css-calculated width
             const pixelPerfectWidth = (canvas.clientWidth - canvas.clientWidth % this.gridWidth)
             canvas.width = pixelPerfectWidth
-            canvas.height = pixelPerfectWidth * height / width
+            canvas.height = pixelPerfectWidth * this.gridHeight / this.gridWidth
             // set the css width to that calculated value
             canvas.style.width = `${canvas.width}px`
             this.pixelSize = canvas.width / this.gridWidth
@@ -119,7 +114,7 @@ export default class pixelCanvas {
 
     private repaint() {
         this.context.clearRect(0, 0, this.gridWidth * this.pixelSize, this.gridHeight * this.pixelSize)
-        this.pixels.forEach((c, i) => {
+        this.section.pixels.forEach((c, i) => {
             const x = i % this.gridWidth
             const y = Math.floor(i / this.gridWidth)
             this.context.fillStyle = c.to_string()
@@ -128,11 +123,9 @@ export default class pixelCanvas {
     }
 
     paintPixel(x: number, y: number, c: color, overwriteAlpha = false) {
-        if (c.a === 1 || overwriteAlpha) {
-            this.pixels[x + y * this.gridWidth] = c.copy()
+        if (overwriteAlpha)
             this.context.clearRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
-        } else
-            this.pixels[x + y * this.gridWidth] = c.alpha_blend(this.pixels[x + y * this.gridWidth])
+        this.section.paintPixel(x, y, c, !(c.a === 1 || overwriteAlpha))
         
         this.context.fillStyle = c.to_string()
         this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
@@ -140,17 +133,7 @@ export default class pixelCanvas {
         if (this.onUpdate) this.onUpdate()
     }
 
-    generateImageURL(): string {
-        this.pixels.forEach((c, i) => {
-            const x = i % this.gridWidth
-            const y = Math.floor(i / this.gridWidth)
-            this.output_canvas.fillStyle = c.to_string()
-            this.output_canvas.fillRect(x + 20, y + 20, 1, 1)
-        })
-        return this.output_canvas.canvas.toDataURL();
-    }
-
-    getPixel(x: number, y: number) { return this.pixels[x + y * this.gridWidth] }
+    getPixel(x: number, y: number) { return this.section.pixels[x + y * this.gridWidth] }
     get width() { return this.gridWidth; }
     get height() { return this.gridHeight; }
     undo() { this.urStack.undo() }

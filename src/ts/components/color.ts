@@ -6,6 +6,7 @@ export default class color {
 
     static white = new color(255, 255, 255)
     static red = new color(255, 0, 0)
+    static transparent = new color(255, 0, 0, 0)
     
     constructor(r: number, g: number, b: number, a = 1) {
         this.r = r
