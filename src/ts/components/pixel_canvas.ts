@@ -44,6 +44,7 @@ export default class pixelCanvas {
     
     private section: skin_section
     private context: CanvasRenderingContext2D
+    private defaultCSSWidth: string
     
     private painting: boolean = false
     private urStack: undoRedoStack
@@ -62,22 +63,9 @@ export default class pixelCanvas {
         canvas.style.setProperty("--canvas-width", `${this.gridWidth}`)
         this.context = canvas.getContext("2d")!
         
-        const defaultCSSWidth = canvas.style.width
-        const resizeCallback = () => {
-            // reset the canvas width to the original style so it can recalulate
-            canvas.style.width = defaultCSSWidth
-            // set the canvas pixel-perfect width nearest to the css-calculated width
-            const pixelPerfectWidth = (canvas.clientWidth - canvas.clientWidth % this.gridWidth)
-            canvas.width = pixelPerfectWidth
-            canvas.height = pixelPerfectWidth * this.gridHeight / this.gridWidth
-            // set the css width to that calculated value
-            canvas.style.width = `${canvas.width}px`
-            this.pixelSize = canvas.width / this.gridWidth
-
-            this.repaint()
-        }
-        resizeCallback()
-        window.addEventListener("resize", resizeCallback)
+        this.defaultCSSWidth = canvas.style.width
+        this.onResize()
+        window.addEventListener("resize", this.onResize.bind(this))
 
         const useTool = (e: MouseEvent, start: boolean = false): void => {
             const rect = canvas.getBoundingClientRect()
@@ -110,6 +98,28 @@ export default class pixelCanvas {
         canvas.addEventListener("mousemove", e => {
             if (this.painting) useTool(e)
         })
+    }
+
+    private onResize(): void {
+        // reset the canvas width to the original style so it can recalulate
+        this.context.canvas.style.width = this.defaultCSSWidth
+        // set the canvas pixel-perfect width nearest to the css-calculated width
+        const pixelPerfectWidth = (this.context.canvas.clientWidth - this.context.canvas.clientWidth % this.gridWidth)
+        this.context.canvas.width = pixelPerfectWidth
+        this.context.canvas.height = pixelPerfectWidth * this.gridHeight / this.gridWidth
+        // set the css width to that calculated value
+        this.context.canvas.style.width = `${this.context.canvas.width}px`
+        this.pixelSize = this.context.canvas.width / this.gridWidth
+
+        this.repaint()
+    }
+
+    setSkinSection(section: skin_section): void {
+        this.gridWidth = section.width
+        this.gridHeight = section.height
+        this.section = section
+        this.urStack = new undoRedoStack
+        this.onResize()
     }
 
     private repaint() {

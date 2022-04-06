@@ -9,7 +9,7 @@ import skin from "./skin.js"
 
 const steve = new skin(false)
 
-const canvas = new pixelCanvas("#canvas", steve.body.outer.front)
+const canvas = new pixelCanvas("#canvas", steve.head.inner.front)
 const picker = new colorPicker("#color-picker", c => canvas.currentColor = c.copy())
 
 const tools = new toolbar(".tools", canvas)
@@ -24,6 +24,7 @@ tools.setActiveFromId("pen")
 
 let alphaEnabled = false
 
+let body = false
 window.addEventListener("keydown", e => {
     if (e.code === "KeyZ" && e.ctrlKey) {
         if (e.shiftKey) canvas.redo()
@@ -32,9 +33,13 @@ window.addEventListener("keydown", e => {
     else if (e.code === "KeyX") {
         alphaEnabled = !alphaEnabled
         picker.alphaEnabled = alphaEnabled
+    } else if (e.code === "KeyQ") {
+        body = !body
+        canvas.setSkinSection(body ? steve.body.inner.front : steve.head.inner.front)
     }
     else if (tools.getFromKeybind(e.code) !== undefined)
         tools.setActiveFromKeybind(e.code)
+    else console.log(tools)
 })
 
 const threedview = createSkinViewer(<HTMLDivElement>document.querySelector("#threedview"), false)
