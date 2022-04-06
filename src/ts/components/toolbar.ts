@@ -33,7 +33,7 @@ export default class toolbar {
         return (i !== undefined) ? this.values[i] : undefined
     }
     getFromKeybind(keybind: string) {
-        const i = this.ids.get(keybind)
+        const i = this.keybinds.get(keybind)
         return (i !== undefined) ? this.values[i] : undefined
     }
 
