@@ -1,4 +1,4 @@
-import color from "./color.js"
+import color from "../utils/color"
 
 interface attributeList { [key: string]: string }
 

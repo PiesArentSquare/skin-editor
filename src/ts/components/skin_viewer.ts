@@ -19,10 +19,10 @@ export default function createSkinViewer(parent: HTMLElement, alex: boolean): sk
     }
 }
 
-const steveInnerURL = new URL('../assets/model/steve.glb', import.meta.url).href
-const steveOuterURL = new URL("../assets/model/steveOuter.glb", import.meta.url).href
-const alexInnerURL = new URL("../assets/model/alex.glb", import.meta.url).href
-const alexOuterURL = new URL("../assets/model/alexOuter.glb", import.meta.url).href
+const steveInnerURL = new URL('../../assets/model/steve.glb', import.meta.url).href
+const steveOuterURL = new URL("../../assets/model/steveOuter.glb", import.meta.url).href
+const alexInnerURL = new URL("../../assets/model/alex.glb", import.meta.url).href
+const alexOuterURL = new URL("../../assets/model/alexOuter.glb", import.meta.url).href
 
 export class skinViewer {
     private scene = new Scene

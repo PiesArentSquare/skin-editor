@@ -1,6 +1,6 @@
-import color from "./color.js"
-import { command, commandGroup, undoRedoStack } from "./command.js"
-import { skin_section } from "../skin"
+import color from "../utils/color"
+import { command, commandGroup, undoRedoStack } from "../utils/command"
+import { skin_section } from "../utils/skin"
 
 export class paintPixel implements command {
     private canvas: pixelCanvas

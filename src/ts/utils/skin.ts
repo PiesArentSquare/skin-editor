@@ -1,4 +1,4 @@
-import color from "./components/color"
+import color from "../utils/color"
 
 export class skin_section {
     width: number

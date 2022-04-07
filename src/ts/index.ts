@@ -1,11 +1,11 @@
-import pixelCanvas from "./components/pixel_canvas.js"
-import colorPicker from "./components/color_picker.js"
-import toolbar from "./components/toolbar.js"
+import pixelCanvas from "./components/pixel_canvas"
+import colorPicker from "./components/color_picker"
+import toolbar from "./components/toolbar"
 
-import {pen_tool, eraser_tool, eyedropper_tool, fill_tool} from "./tools.js"
+import {pen_tool, eraser_tool, eyedropper_tool, fill_tool} from "./tools"
 
-import createSkinViewer from "./skin_viewer.js"
-import skin from "./skin.js"
+import createSkinViewer from "./components/skin_viewer"
+import skin from "./utils/skin"
 
 const steve = new skin(false)
 
