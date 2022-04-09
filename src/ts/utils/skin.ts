@@ -23,7 +23,7 @@ export class skin_section {
     paintPixel(x: number, y: number, c: color, blend: boolean = false) {
         this.pixels[x + y * this.width] = blend ? c.alpha_blend(this.pixels[x + y * this.width]) : c.copy()
         this.output_canvas.clearRect(x + this.u, y + this.v, 1, 1)
-        this.output_canvas.fillStyle = c.to_string()
+        this.output_canvas.fillStyle = this.pixels[x + y * this.width].to_string()
         this.output_canvas.fillRect(x + this.u, y + this.v, 1, 1)
     }
 

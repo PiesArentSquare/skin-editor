@@ -9,7 +9,7 @@ import skin from "./utils/skin"
 
 const steve = new skin(false)
 
-const canvas = new pixelCanvas("#canvas", steve.head.inner.front)
+const canvas = new pixelCanvas("#canvas", steve.head.outer.front)
 const picker = new colorPicker("#color-picker", c => canvas.currentColor = c.copy())
 
 const tools = new toolbar(".tools", canvas)
@@ -35,7 +35,7 @@ window.addEventListener("keydown", e => {
         picker.alphaEnabled = alphaEnabled
     } else if (e.code === "KeyQ") {
         body = !body
-        canvas.setSkinSection(body ? steve.body.inner.front : steve.head.inner.front)
+        canvas.setSkinSection(body ? steve.body.outer.front : steve.head.outer.front)
     }
     else if (tools.getFromKeybind(e.code) !== undefined)
         tools.setActiveFromKeybind(e.code)
