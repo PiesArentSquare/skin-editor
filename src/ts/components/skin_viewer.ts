@@ -27,7 +27,8 @@ const alexOuterURL = new URL("../../assets/model/alexOuter.glb", import.meta.url
 export class skinViewer {
     private scene = new Scene
     private renderer = new WebGLRenderer
-    private camera: PerspectiveCamera
+    private camera: PerspectiveCamera | undefined
+    private controls: OrbitControls | undefined
 
     private innerModel: Group | undefined
     private outerModel: Group | undefined
@@ -37,20 +38,23 @@ export class skinViewer {
     private textureLoader = new TextureLoader
     private modelLoader = new GLTFLoader
 
-    constructor(parent: HTMLElement, alex: boolean) {
-        const width = parent.clientWidth
-        const height = parent.clientHeight
+    constructor(parent: HTMLElement, alex: boolean) { 
+        const resize = () => {
+            this.camera = new PerspectiveCamera(75, parent.clientWidth / parent.clientHeight, 0.1, 1000)
+            this.camera.translateZ(5)
 
-        this.camera = new PerspectiveCamera(75, width / height, 0.1, 1000)
-        this.camera.translateZ(5)
-        
+            this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+            this.controls.enableDamping = true
+            this.controls.enablePan = false
+            this.controls.enableZoom = false
+
+            this.renderer.setSize(parent.clientWidth, parent.clientHeight)
+        }
+        resize()
+
+        window.addEventListener('resize', resize)
+
         this.renderer.setPixelRatio(window.devicePixelRatio)
-        this.renderer.setSize(width, height)
-
-        const controls = new OrbitControls(this.camera, this.renderer.domElement)
-        controls.enableDamping = true
-        controls.enablePan = false
-        controls.enableZoom = false
 
         this.loadAssets(alex)
 
@@ -58,8 +62,8 @@ export class skinViewer {
 
         const animate = () => {
             requestAnimationFrame(animate)
-            controls.update()
-            this.renderer.render(this.scene, this.camera)
+            this.controls!.update()
+            this.renderer.render(this.scene, this.camera!)
         }
         animate()
 
