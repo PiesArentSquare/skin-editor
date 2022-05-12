@@ -1,151 +1,139 @@
-import color from "../utils/color"
-import { command, commandGroup, undoRedoStack } from "../utils/command"
-import { skin_section } from "../utils/skin"
+import color from "src/ts/utils/color"
+import { command_group, undo_redo_stack, type command } from "src/ts/utils/command"
+import { skin_section } from "./utils/skin"
 
-export class paintPixel implements command {
-    private canvas: pixelCanvas
+export class paint_pixel implements command {
+    private canvas: canvas_data
     private x: number
     private y: number
     private old: color
     private new: color
-    private overwriteAlpha: boolean
-
-    constructor(canvas: pixelCanvas, x: number, y: number, value: color, overwriteAlpha: boolean = false) {
+    private overwrite_alpha: boolean
+    
+    constructor(canvas: canvas_data, x: number, y: number, value: color, overwrite_alpha: boolean = false) {
         this.canvas = canvas
         this.x = x
         this.y = y
-        this.old = canvas.getPixel(x, y).copy()
+        this.old = canvas.get_pixel(x, y).copy()
         this.new = value
-        this.overwriteAlpha = overwriteAlpha
+        this.overwrite_alpha = overwrite_alpha
     }
-
+    
     do(): void {
-        this.canvas.paintPixel(this.x, this.y, this.new, this.overwriteAlpha)
+        this.canvas.paint_pixel(this.x, this.y, this.new, this.overwrite_alpha)
     }
-
+    
     undo(): void {
-        this.canvas.paintPixel(this.x, this.y, this.old, true)
+        this.canvas.paint_pixel(this.x, this.y, this.old, true)
     }
 }
 
 export interface tool {
-    start(x: number, y: number, canvas: pixelCanvas): void
-    drag(x: number, y: number, canvas: pixelCanvas): void
-    finish(canvas: pixelCanvas): command | void
+    start(x: number, y: number, canvas: canvas_data): void
+    drag(x: number, y: number, canvas: canvas_data): void
+    finish(canvas: canvas_data): command | void
 }
 
-export default class pixelCanvas {
+export default class canvas_data {
     
-    currentColor: color
+    private current_section: skin_section
+    private canvas: HTMLCanvasElement
+    private ctx: CanvasRenderingContext2D
+    private default_css_width: string
+    private border_width: number
+    private pixel_size: number
     
-    private gridWidth: number
-    private gridHeight: number
-    private pixelSize: number = 0
+    private painting = false
+    private ur_stack = new undo_redo_stack
+    current_tool: tool | undefined = undefined
     
-    private section: skin_section
-    private context: CanvasRenderingContext2D
-    private defaultCSSWidth: string
-    
-    private painting: boolean = false
-    private urStack: undoRedoStack
-    currentTool: tool | undefined
-    onUpdate: (() => void) | undefined
-
-    constructor(htmlSelector: string, section: skin_section) {
-        this.gridWidth = section.width
-        this.gridHeight = section.height
-        this.currentColor = new color(0, 0, 0)
-        this.section = section
-
-        this.urStack = new undoRedoStack
-
-        const canvas = <HTMLCanvasElement>document.querySelector(htmlSelector)
-        canvas.style.setProperty("--canvas-width", `${this.gridWidth}`)
-        this.context = canvas.getContext("2d")!
-        
-        this.defaultCSSWidth = canvas.style.width
-        this.onResize()
-        window.addEventListener("resize", this.onResize.bind(this))
-
-        const useTool = (e: MouseEvent, start: boolean = false): void => {
-            const rect = canvas.getBoundingClientRect()
-            const x = Math.floor((e.clientX - rect.left) / this.pixelSize)
-            const y = Math.floor((e.clientY - rect.top) / this.pixelSize)
-            if (x < this.gridWidth && y < this.gridHeight) {
-                if (start) this.currentTool?.start(x, y, this)
-                else this.currentTool?.drag(x, y, this)
-            }
-        }
-
-        const finishPainting = () => {
-            const c = this.currentTool?.finish(this)
-            if (c && !(<commandGroup>c).is_empty()) this.urStack.append(c)
-            this.painting = false
-        }
-
-        canvas.addEventListener("mousedown", e => {
-            if (e.button === 0) {
-                this.painting = true
-                useTool(e, true)
-            } else if (this.painting)
-                finishPainting()
-        })
-        
-        window.addEventListener("mouseup", () => {
-            if (this.painting) finishPainting()
-        })
-
-        canvas.addEventListener("mousemove", e => {
-            if (this.painting) useTool(e)
-        })
+    constructor(canvas: HTMLCanvasElement, section: skin_section) {
+        this.canvas = canvas
+        this.ctx = canvas.getContext('2d')
+        this.default_css_width = canvas.style.width
+        this.border_width = parseInt(window.getComputedStyle(canvas).borderWidth.split('px')[0])
+        this.current_section = section
     }
-
-    private onResize(): void {
+    
+    resize() {
         // reset the canvas width to the original style so it can recalulate
-        this.context.canvas.style.width = this.defaultCSSWidth
-        // set the canvas pixel-perfect width nearest to the css-calculated width
-        const pixelPerfectWidth = (this.context.canvas.clientWidth - this.context.canvas.clientWidth % this.gridWidth)
-        this.context.canvas.width = pixelPerfectWidth
-        this.context.canvas.height = pixelPerfectWidth * this.gridHeight / this.gridWidth
-        // set the css width to that calculated value
-        this.context.canvas.style.width = `${this.context.canvas.width}px`
-        this.pixelSize = this.context.canvas.width / this.gridWidth
-
+        this.canvas.style.width = this.default_css_width
+        // set the canvas's dimensions to the nearest pixel-perfect dimensions
+        const pixel_perfect_width = (this.canvas.clientWidth - this.canvas.clientWidth % this.width)
+        this.canvas.width = pixel_perfect_width
+        this.canvas.height = pixel_perfect_width * this.height / this.width
+        // set the css width to match
+        this.canvas.style.width = `${this.canvas.width}px`
+        
+        this.pixel_size = this.canvas.width / this.width
+        
         this.repaint()
     }
 
-    setSkinSection(section: skin_section): void {
-        this.gridWidth = section.width
-        this.gridHeight = section.height
-        this.section = section
-        this.urStack = new undoRedoStack
-        this.onResize()
+    set_section(section: skin_section) {
+        this.current_section = section
+        this.resize()
     }
-
-    private repaint() {
-        this.context.clearRect(0, 0, this.gridWidth * this.pixelSize, this.gridHeight * this.pixelSize)
-        this.section.pixels.forEach((c, i) => {
-            const x = i % this.gridWidth
-            const y = Math.floor(i / this.gridWidth)
-            this.context.fillStyle = c.to_string()
-            this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
+    
+    repaint() {
+        this.ctx.clearRect(0, 0, this.width * this.pixel_size, this.height * this.pixel_size)
+        this.current_section.pixels.forEach((c, i) => {
+            const x = i % this.width
+            const y = Math.floor(i / this.width)
+            this.ctx.fillStyle = c.to_string()
+            this.ctx.fillRect(x * this.pixel_size, y * this.pixel_size, this.pixel_size, this.pixel_size)
         })
     }
-
-    paintPixel(x: number, y: number, c: color, overwriteAlpha = false) {
-        if (overwriteAlpha)
-            this.context.clearRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
-        this.section.paintPixel(x, y, c, !(c.a === 1 || overwriteAlpha))
+    
+    paint_pixel(x: number, y: number, c: color, overwrite_alpha = false) {
+        if (overwrite_alpha)
+        this.ctx.clearRect(x * this.pixel_size, y * this.pixel_size, this.pixel_size, this.pixel_size)
+        this.ctx.fillStyle = c.to_string()
+        this.ctx.fillRect(x * this.pixel_size, y * this.pixel_size, this.pixel_size, this.pixel_size)
         
-        this.context.fillStyle = c.to_string()
-        this.context.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize)
-
-        if (this.onUpdate) this.onUpdate()
+        this.current_section.paint_pixel(x, y, c, !(c.a === 1 || overwrite_alpha))
     }
-
-    getPixel(x: number, y: number) { return this.section.pixels[x + y * this.gridWidth] }
-    get width() { return this.gridWidth; }
-    get height() { return this.gridHeight; }
-    undo() { this.urStack.undo() }
-    redo() { this.urStack.redo() }
+    
+    mousedown(e: MouseEvent) {
+        if (e.button === 0) {
+            this.painting = true
+            this.use_tool(e, true)
+        } else if (this.painting) {
+            this.finish()
+        }
+    }
+    
+    mousemove(e: MouseEvent) {
+        if (this.painting) {
+            e.preventDefault()
+            this.use_tool(e)
+        }
+    }
+    
+    mouseup(e: MouseEvent) {
+        if (this.painting) this.finish()
+    }
+    
+    private use_tool(e: MouseEvent, start = false) {
+        if (!this.current_tool) return
+        const rect = this.canvas.getBoundingClientRect()
+        const ox = e.clientX - rect.left - this.border_width
+        const oy = e.clientY - rect.top - this.border_width
+        const x = Math.floor(ox / this.pixel_size)
+        const y = Math.floor(oy / this.pixel_size)
+        if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
+            if (start) this.current_tool.start(x, y, this)
+            else this.current_tool.drag(x, y, this)
+        }
+    }
+    
+    private finish() {
+        const c = this.current_tool?.finish(this)
+        if (c && !(<command_group>c).is_empty()) this.ur_stack.append(c)
+        this.painting = false
+    }
+    
+    get width() { return this.current_section.width }
+    get height() { return this.current_section.height }
+    get_pixel(x: number, y: number) { return this.current_section.pixels[x + y * this.width] }
 }

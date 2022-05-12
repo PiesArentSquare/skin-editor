@@ -4,7 +4,7 @@ export interface command {
     undo(): void
 }
 
-export class commandGroup implements command {
+export class command_group implements command {
     private stack: command[] = []
 
     add(c: command): void {
@@ -28,8 +28,8 @@ export class commandGroup implements command {
         this.stack.length = 0
     }
 
-    copy(): commandGroup {
-        let copy = new commandGroup
+    copy(): command_group {
+        let copy = new command_group
         copy.stack = this.stack.slice()
         return copy
     }
@@ -40,7 +40,7 @@ export class commandGroup implements command {
 
 }
 
-export class undoRedoStack {
+export class undo_redo_stack {
     private stack: command[] = []
     private live_size: number = 0
 

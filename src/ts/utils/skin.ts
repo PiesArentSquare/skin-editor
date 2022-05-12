@@ -20,7 +20,7 @@ export class skin_section {
         this.output_canvas.fillRect(u, v, width, height)
     }
 
-    paintPixel(x: number, y: number, c: color, blend: boolean = false) {
+    paint_pixel(x: number, y: number, c: color, blend: boolean = false) {
         this.pixels[x + y * this.width] = blend ? c.alpha_blend(this.pixels[x + y * this.width]) : c.copy()
         this.output_canvas.clearRect(x + this.u, y + this.v, 1, 1)
         this.output_canvas.fillStyle = this.pixels[x + y * this.width].to_string()
@@ -103,5 +103,5 @@ export default class skin {
         this.legs = new limb_pair(4, 12, 4, skin_uvs.rleg_iu, skin_uvs.rleg_iv, skin_uvs.rleg_ou, skin_uvs.rleg_ov, skin_uvs.lleg_iu, skin_uvs.lleg_iv, skin_uvs.lleg_ou, skin_uvs.lleg_ov, this.output_canvas)
     }
 
-    getImageURL(): string { return this.output_canvas.canvas.toDataURL(); }
+    get_image_url(): string { return this.output_canvas.canvas.toDataURL(); }
 }
