@@ -5,52 +5,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   
-  <link rel="stylesheet" href="/src/sass/style.scss">
-  
-  <script src="https://kit.fontawesome.com/1336cd4fc4.js" crossorigin="anonymous" type="module"></script>
+  <link rel="stylesheet" href="src/styles/global.scss">
   
   <title>skin editor ~ untitled*</title>
 </head>
 <body>
-  <nav class="nav">
-    <div class="inner">
-      <ul>
-        <li id="new">new</li>
-        <li id="open">open</li>
-        <li id="save">save</li>
-      </ul>
-      <h1>untitled*</h1>
-    </div>
-  </nav>
-  <div class="main">
-    <section class="editor">
-      <div class="canvas-wrapper">
-        <canvas id="canvas"></canvas>
-      </div>
-      <div class="toolbar">
-        <div id="color-picker"></div>
-        <div class="tools">
-          <input type="radio" name="tool" id="pen" checked>
-          <label for="pen">
-            <i class="fa-solid fa-pen fa-lg"></i>
-          </label>
-          <input type="radio" name="tool" id="eraser">
-          <label for="eraser">
-            <i class="fa-solid fa-eraser fa-lg"></i>
-          </label>
-          <input type="radio" name="tool" id="eyedropper">
-          <label for="eyedropper">
-            <i class="fa-solid fa-eyedropper fa-lg"></i>
-          </label>
-          <input type="radio" name="tool" id="fill">
-          <label for="fill">
-            <i class="fa-solid fa-fill-drip fa-lg"></i>
-          </label>
-        </div>
-      </div>
-    </section>
-    <section id="threedview"></section>
-  </div>
-  <script type="module" src="/src/ts/index.ts"></script>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
