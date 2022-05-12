@@ -1,35 +1,33 @@
-:root {
-  --bg-color: hsl(0, 0%, 91%);
-  --secondary-color: hsl(21, 12%, 23%);
+$bg-color: hsl(0, 0%, 91%);
+$secondary-color: hsl(21, 12%, 23%);
 
-  --border-radius: .5rem;
-  --border-radius-sm: .25rem;
-  --inner-border: 3px solid white;
-  --inner-border-sm: 2px solid white;
-  --outer-border: 0 0 0 3px var(--secondary-color);
-  --outer-border-sm: 0 0 0 2px var(--secondary-color);
-  --border-shadow: 0 3px 6px 3px hsla(20, 7%, 26%, 0.3);
-  --shadow: 0 3px 6px hsla(20, 7%, 26%, 0.3);
-}
+$border-radius: .5rem;
+$border-radius-sm: .25rem;
+$inner-border: 3px solid white;
+$inner-border-sm: 2px solid white;
+$outer-border: 0 0 0 3px $secondary-color;
+$outer-border-sm: 0 0 0 2px $secondary-color;
+$border-shadow: 0 3px 6px 3px hsla(20, 7%, 26%, 0.3);
+$shadow: 0 3px 6px hsla(20, 7%, 26%, 0.3);
 
 $tranparency: url("/src/assets/img/transparency.png");
 
 @mixin double-border {
-  border-radius: var(--border-radius);
-  border: var(--inner-border);
-  box-shadow: var(--outer-border);
+  border-radius: $border-radius;
+  border: $inner-border;
+  box-shadow: $outer-border;
 }
   
 @mixin double-border-shadow {
-  border-radius: var(--border-radius);
-  border: var(--inner-border);
-  box-shadow: var(--outer-border), var(--border-shadow);
+  border-radius: $border-radius;
+  border: $inner-border;
+  box-shadow: $outer-border, $border-shadow;
 }
 
 @mixin double-border-sm {
-  border-radius: var(--border-radius-sm);
-  border: var(--inner-border-sm);
-  box-shadow: var(--outer-border-sm);
+  border-radius: $border-radius-sm;
+  border: $inner-border-sm;
+  box-shadow: $outer-border-sm;
 }
 
 @mixin transparent-color {
