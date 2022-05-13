@@ -1,5 +1,7 @@
 <script lang=ts>
     import { onMount } from 'svelte'
+    import ColorPicker from './ColorPicker.svelte'
+
     import { pen_tool, eraser_tool, fill_tool } from 'src/ts/tools'
     import canvas_data, { type tool } from 'src/ts/canvas_data'
 
@@ -28,6 +30,7 @@
 </script>
 
 <div class="toolbar">
+    <ColorPicker/>
     <div class="tools">
     {#each tools as tool}
         <input type="radio" bind:group={current_tool} name=tool id={tool.name} value={tool}>
