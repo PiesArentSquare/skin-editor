@@ -1,17 +1,28 @@
 <script lang=ts>
+    import { onMount } from 'svelte'
     import Nav from './Nav.svelte'
     import Canvas from './Canvas.svelte'
+    import Toolbar from './Toolbar.svelte'
 
     import skin from 'src/ts/utils/skin'
+    import canvas_data from 'src/ts/canvas_data'
 
     let steve = new skin(false)
+
+    let canvas: Canvas
+    let data: canvas_data
+    
+    let mounted = false
+    onMount(() => mounted = true)
+    $: if(mounted) data = canvas.get_data()
 </script>
 
 <div class="container">
     <Nav/>
     <div class="main">
         <section class="editor">
-            <Canvas current_section={steve.head.outer.front}/>
+            <Canvas bind:this={canvas} current_section={steve.head.outer.front}/>
+            <Toolbar canvas={data}/>
         </section>
     </div>
 </div>

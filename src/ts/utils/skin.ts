@@ -1,4 +1,4 @@
-import color from "../utils/color"
+import color from './color'
 
 export class skin_section {
     width: number
@@ -7,25 +7,42 @@ export class skin_section {
     v: number
     pixels:  color[]
     output_canvas: CanvasRenderingContext2D
+    subsection_canvas: CanvasRenderingContext2D
+    alpha_enabled: boolean
 
-    constructor(width: number, height: number, u: number, v: number, transparent: boolean, output_canvas: CanvasRenderingContext2D) {
+    constructor(width: number, height: number, u: number, v: number, transparent: boolean, output_canvas: CanvasRenderingContext2D, outer = false) {
         this.width = width
         this.height = height
         this.u = u
         this.v = v
         this.output_canvas = output_canvas
+        this.alpha_enabled = outer
+
+        const subsection = document.createElement("canvas")
+        subsection.width = width
+        subsection.height = height
+        this.subsection_canvas = subsection.getContext("2d")
 
         this.pixels = transparent ? Array.from(Array<color>(width * height), () => { return color.transparent }) : Array.from(Array<color>(width * height), () => { return color.white })
-        this.output_canvas.fillStyle = transparent ? color.transparent.to_string() : color.white.to_string()
+        const fill_color = transparent ? color.transparent.to_string() : color.white.to_string()
+        this.output_canvas.fillStyle = fill_color
         this.output_canvas.fillRect(u, v, width, height)
+        this.subsection_canvas.fillStyle = fill_color
+        this.subsection_canvas.fillRect(0, 0, width, height)
     }
 
     paint_pixel(x: number, y: number, c: color, blend: boolean = false) {
         this.pixels[x + y * this.width] = blend ? c.alpha_blend(this.pixels[x + y * this.width]) : c.copy()
+        const fill_color = this.pixels[x + y * this.width].to_string()
+        this.output_canvas.fillStyle = fill_color
         this.output_canvas.clearRect(x + this.u, y + this.v, 1, 1)
-        this.output_canvas.fillStyle = this.pixels[x + y * this.width].to_string()
         this.output_canvas.fillRect(x + this.u, y + this.v, 1, 1)
+        this.subsection_canvas.fillStyle = fill_color
+        this.subsection_canvas.clearRect(x, y, 1, 1)
+        this.subsection_canvas.fillRect(x, y, 1, 1)
     }
+
+    get_subsection_url() { return this.subsection_canvas.canvas.toDataURL() }
 
 }
 
@@ -37,14 +54,23 @@ class limb_layer {
     top: skin_section
     bottom: skin_section
 
-    constructor(width: number, height: number, depth: number, u: number, v: number, transparent: boolean, output_canvas: CanvasRenderingContext2D) {
-        this.top    = new skin_section(width, depth,  u + depth,             v,         transparent, output_canvas)
-        this.bottom = new skin_section(width, depth,  u + depth + width,     v,         transparent, output_canvas)
-        this.right  = new skin_section(depth, height, u,                     v + depth, transparent, output_canvas)
-        this.front  = new skin_section(width, height, u + depth,             v + depth, transparent, output_canvas)
-        this.left   = new skin_section(depth, height, u + depth + width,     v + depth, transparent, output_canvas)
-        this.back   = new skin_section(width, height, u + 2 * depth + width, v + depth, transparent, output_canvas)
+    constructor(width: number, height: number, depth: number, u: number, v: number, transparent: boolean, output_canvas: CanvasRenderingContext2D, outer = false) {
+        this.top    = new skin_section(width, depth,  u + depth,             v,         transparent, output_canvas, outer)
+        this.bottom = new skin_section(width, depth,  u + depth + width,     v,         transparent, output_canvas, outer)
+        this.right  = new skin_section(depth, height, u,                     v + depth, transparent, output_canvas, outer)
+        this.front  = new skin_section(width, height, u + depth,             v + depth, transparent, output_canvas, outer)
+        this.left   = new skin_section(depth, height, u + depth + width,     v + depth, transparent, output_canvas, outer)
+        this.back   = new skin_section(width, height, u + 2 * depth + width, v + depth, transparent, output_canvas, outer)
     }
+
+    sections() { return [
+        {section: this.top, name: 'top'},
+        {section: this.right, name: 'right'},
+        {section: this.front, name: 'front'},
+        {section: this.left, name: 'left'},
+        {section: this.back, name: 'back'},
+        {section: this.bottom, name: 'bottom'}
+    ]}
 }
 
 class limb {
@@ -53,8 +79,13 @@ class limb {
 
     constructor(width: number, height: number, depth: number, iu: number, iv: number, ou: number, ov: number, output_canvas: CanvasRenderingContext2D) {
         this.inner = new limb_layer(width, height, depth, iu, iv, false, output_canvas)
-        this.outer = new limb_layer(width, height, depth, ou, ov, true, output_canvas)
+        this.outer = new limb_layer(width, height, depth, ou, ov, true, output_canvas, true)
     }
+
+    layers() { return [
+        {layer: this.inner, name: 'inner'},
+        {layer: this.outer, name: 'outer'}
+    ]}
 }
 
 class limb_pair {
@@ -87,11 +118,12 @@ export default class skin {
     body: limb
     arms: limb_pair
     legs: limb_pair
+    alex: boolean
     
     output_canvas: CanvasRenderingContext2D
-    imgURL: string | undefined
 
     constructor(alex: boolean) {
+        this.alex = alex
         const output = document.createElement("canvas")
         output.width = 64
         output.height = 64
@@ -102,6 +134,15 @@ export default class skin {
         this.arms = new limb_pair(alex ? 3 : 4, 12, 4, skin_uvs.rarm_iu, skin_uvs.rarm_iv, skin_uvs.rarm_ou, skin_uvs.rarm_ov, skin_uvs.larm_iu, skin_uvs.larm_iv, skin_uvs.larm_ou, skin_uvs.larm_ov, this.output_canvas)
         this.legs = new limb_pair(4, 12, 4, skin_uvs.rleg_iu, skin_uvs.rleg_iv, skin_uvs.rleg_ou, skin_uvs.rleg_ov, skin_uvs.lleg_iu, skin_uvs.lleg_iv, skin_uvs.lleg_ou, skin_uvs.lleg_ov, this.output_canvas)
     }
+
+    limbs() { return [
+        {limb: this.head, name: 'head'},
+        {limb: this.body, name: 'body'},
+        {limb: this.arms.right, name: 'right arm'},
+        {limb: this.arms.left, name: 'left arm'},
+        {limb: this.legs.right, name: 'right leg'},
+        {limb: this.legs.left, name: 'left leg'}
+    ]}
 
     get_image_url(): string { return this.output_canvas.canvas.toDataURL(); }
 }

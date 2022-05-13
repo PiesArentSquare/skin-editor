@@ -36,7 +36,7 @@ export interface tool {
 
 export default class canvas_data {
     
-    private current_section: skin_section
+    current_section: skin_section
     private canvas: HTMLCanvasElement
     private ctx: CanvasRenderingContext2D
     private default_css_width: string

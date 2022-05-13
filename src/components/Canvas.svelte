@@ -7,6 +7,7 @@
 
     let canvas: HTMLCanvasElement
     let data: canvas_data
+    export function get_data() { return data }
 
     let mounted = false
     onMount(() => {

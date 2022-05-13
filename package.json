@@ -23,6 +23,8 @@
   "author": "piesarentsquare",
   "license": "ISC",
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "svelte-fa": "^2.4.0",
     "three": "^0.138.3"
   }
 }
