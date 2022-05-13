@@ -27,6 +27,13 @@
     </div>
 </div>
 
+<svelte:window on:keydown={e => {
+    if (e.code == 'KeyZ' && e.ctrlKey) {
+        if (e.shiftKey) canvas.redo()
+        else canvas.undo()
+    }
+}}/>
+
 <style lang=scss>
     @use 'src/styles/common';
 

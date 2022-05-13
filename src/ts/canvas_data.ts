@@ -136,4 +136,6 @@ export default class canvas_data {
     get width() { return this.current_section.width }
     get height() { return this.current_section.height }
     get_pixel(x: number, y: number) { return this.current_section.pixels[x + y * this.width] }
+    undo() { this.ur_stack.undo() }
+    redo() { this.ur_stack.redo() }
 }

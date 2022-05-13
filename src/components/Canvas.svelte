@@ -8,6 +8,8 @@
     let canvas: HTMLCanvasElement
     let data: canvas_data
     export function get_data() { return data }
+    export function undo() { data.undo() }
+    export function redo() { data.redo() }
 
     let mounted = false
     onMount(() => {
