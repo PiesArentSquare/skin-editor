@@ -6,6 +6,7 @@
 
     import skin from 'src/ts/utils/skin'
     import canvas_data from 'src/ts/canvas_data'
+    import { in_text_field } from 'src/ts/stores'
 
     let steve = new skin(false)
 
@@ -28,7 +29,7 @@
 </div>
 
 <svelte:window on:keydown={e => {
-    if (e.code == 'KeyZ' && e.ctrlKey) {
+    if (!$in_text_field && e.code == 'KeyZ' && e.ctrlKey) {
         if (e.shiftKey) canvas.redo()
         else canvas.undo()
     }

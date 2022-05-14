@@ -17,7 +17,6 @@
         padding: 0.5rem 2rem;
         box-shadow: common.$shadow;
         z-index: 1;
-        color: common.$secondary-color;
     }
 
     .inner {

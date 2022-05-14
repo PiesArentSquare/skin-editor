@@ -1,6 +1,8 @@
 <script lang=ts>
     import DualSlider from './DualSlider.svelte'
     import VerticalSlider from './VerticalSlider.svelte'
+    import DropdownMenu from './DropdownMenu.svelte'
+    import InputField from './InputField.svelte'
     
     import { current_color } from 'src/ts/stores'
     import color from 'src/ts/utils/color'
@@ -9,9 +11,25 @@
     export let enablealpha = true
 
     let open = false
+    
+    let input_type = 'hsv'
+    let hue = 0, saturation = 100, value = 100, alpha = 100
+    let hex: string
 
-    let hue = 0, saturation = 100, value: number = 100, alpha = 100
-    $: current_color.set(color.from_hsv(hue, saturation / 100, value / 100, alpha / 100))
+    $: {
+        current_color.set(color.from_hsv(hue, saturation / 100, value / 100, alpha / 100))
+        hex = $current_color.to_hex()
+    }
+
+    function set_color_from_hex() {
+        current_color.set(color.from_hex(hex))
+        const [h, s, v, a] = $current_color.to_hsv()
+        hue = h
+        saturation = s * 100
+        value = v * 100
+        alpha = a * 100
+    }
+
 </script>
 
 <div class="color-picker" style="color: {$current_color.to_string()}" on:click|self={() => open = !open} use:click_outside on:outclick={() => open = false}>
@@ -25,7 +43,17 @@
             {/if}
         </div>
         <div class="input-area">
-            
+            <DropdownMenu list={['hsv', 'hex']} bind:value={input_type}/>
+            {#if input_type === 'hsv'}
+                <InputField bind:value={hue} max={360} min={0} name="hue"/>
+                <InputField bind:value={saturation} max={100} min={0} name="saturation"/>
+                <InputField bind:value={value} max={100} min={0} name="value"/>
+                {#if enablealpha}
+                    <InputField bind:value={alpha} max={100} min={0} name="alpha"/>
+                {/if}
+            {:else}
+                <InputField bind:value={hex} type=text name="hex" on:focusout={set_color_from_hex}/>
+            {/if}
         </div>
     </div>
 {/if}

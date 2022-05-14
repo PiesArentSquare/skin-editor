@@ -5,7 +5,7 @@
     export let max = 100
     export let inverted = false
     export let name = ''
-    let cssvalue = inverted ? max - value : value
+    $: cssvalue = inverted ? max - value : value
 
     let slider: HTMLDivElement
     let dragging = false

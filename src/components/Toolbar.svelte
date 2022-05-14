@@ -4,6 +4,7 @@
 
     import { pen_tool, eraser_tool, fill_tool } from 'src/ts/tools'
     import canvas_data, { type tool } from 'src/ts/canvas_data'
+    import { in_text_field } from 'src/ts/stores'
 
     import Fa from 'svelte-fa'
     import { faEraser, faFillDrip, faPen, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
@@ -42,8 +43,10 @@
 </div>
 
 <svelte:window on:keydown={e =>{
-    const s = tools.filter(t => t.keybind === e.code)
-    if (s.length > 0) current_tool = s[0]
+    if (!$in_text_field) {
+        const s = tools.filter(t => t.keybind === e.code)
+        if (s.length > 0) current_tool = s[0]
+    }
 }}/>
 
 <style lang=scss>
