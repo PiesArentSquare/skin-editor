@@ -3,6 +3,7 @@
     import Nav from './Nav.svelte'
     import Canvas from './Canvas.svelte'
     import Toolbar from './Toolbar.svelte'
+    import SkinViewer from './SkinViewer.svelte'
 
     import skin from 'src/ts/utils/skin'
     import canvas_data from 'src/ts/canvas_data'
@@ -24,6 +25,9 @@
         <section class="editor">
             <Canvas bind:this={canvas} current_section={steve.head.outer.front}/>
             <Toolbar canvas={data}/>
+        </section>
+        <section class="skin_viewer">
+            <SkinViewer skin={steve}/>
         </section>
     </div>
 </div>
