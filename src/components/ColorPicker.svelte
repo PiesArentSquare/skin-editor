@@ -15,15 +15,31 @@
     let input_type = 'hsv'
     let hue = 0, saturation = 100, value = 100, alpha = 100
     let hex: string
+    let col: color
 
+    let ignore = false
     $: {
+        ignore = true
         current_color.set(color.from_hsv(hue, saturation / 100, value / 100, alpha / 100))
-        hex = $current_color.to_hex()
+        hex = col.to_hex()
     }
 
+    current_color.subscribe(v => {
+        col = v
+        if (!ignore) {
+            set_hsva()
+            hex = col.to_hex()
+        } else ignore = false
+    })
+
     function set_color_from_hex() {
+        ignore = true
         current_color.set(color.from_hex(hex))
-        const [h, s, v, a] = $current_color.to_hsv()
+        set_hsva()
+    }
+
+    function set_hsva() {
+        const [h, s, v, a] = col.to_hsv()
         hue = h
         saturation = s * 100
         value = v * 100
@@ -32,10 +48,10 @@
 
 </script>
 
-<div class="color-picker" style="color: {$current_color.to_string()}" on:click|self={() => open = !open} use:click_outside on:outclick={() => open = false}>
+<div class="color-picker" style="color: {col.to_string()}" on:click|self={() => open = !open} use:click_outside on:outclick={() => open = false}>
 {#if open}
     <div class="picker-window">
-        <div class="slider-area" style="--color:{$current_color.to_string()}; --color-noalpha:{$current_color.with_full_alpha().to_string()}; --hue:{hue}">
+        <div class="slider-area" style="--color:{col.to_string()}; --color-noalpha:{col.with_full_alpha().to_string()}; --hue:{hue}">
             <DualSlider bind:x={saturation} bind:y={value} name="sv"/>
             <VerticalSlider bind:value={hue} max={360} name="hue"/>
             {#if enablealpha}

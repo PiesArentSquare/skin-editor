@@ -49,26 +49,24 @@ export class eraser_tool extends brush_tool {
     }
 }
 
-// export class eyedropper_tool implements tool {
+export class eyedropper_tool implements tool {
 
-//     private picker: ColorPicker
-//     private onFinish: (() => void) | undefined
+    private onFinish: (() => void) | undefined
 
-//     constructor(picker: ColorPicker, onFinish?: () => void) {
-//         this.picker = picker
-//         this.onFinish = onFinish
-//     }
+    constructor(onFinish?: () => void) {
+        this.onFinish = onFinish
+    }
 
-//     start(x: number, y: number, canvas: canvas_data): void {
-//         this.picker.set_color(canvas.get_pixel(x, y))
-//     }
-//     drag(x: number, y: number, canvas: canvas_data): void {
-//         this.picker.set_color(canvas.get_pixel(x, y))
-//     }
-//     finish(_canvas: canvas_data): void {
-//         if(this.onFinish) this.onFinish()
-//     }
-// }
+    start(x: number, y: number, canvas: canvas_data): void {
+        current_color.set(canvas.get_pixel(x, y))
+    }
+    drag(x: number, y: number, canvas: canvas_data): void {
+        current_color.set(canvas.get_pixel(x, y))
+    }
+    finish(_canvas: canvas_data): void {
+        if(this.onFinish) this.onFinish()
+    }
+}
 
 export class fill_tool implements tool {
     private pixels: command_group = new command_group

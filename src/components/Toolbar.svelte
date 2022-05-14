@@ -2,12 +2,12 @@
     import { onMount } from 'svelte'
     import ColorPicker from './ColorPicker.svelte'
 
-    import { pen_tool, eraser_tool, fill_tool } from 'src/ts/tools'
+    import { pen_tool, eraser_tool, fill_tool, eyedropper_tool } from 'src/ts/tools'
     import canvas_data, { type tool } from 'src/ts/canvas_data'
     import { in_text_field } from 'src/ts/stores'
 
     import Fa from 'svelte-fa'
-    import { faEraser, faFillDrip, faPen, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
+    import { faEraser, faEyeDropper, faFillDrip, faPen, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
 
     export let canvas: canvas_data
 
@@ -21,6 +21,7 @@
     let tools: tool_entry[] = [
         { tool: new pen_tool, name: 'pen', icon: faPen, keybind: 'KeyB' },
         { tool: new eraser_tool, name: 'eraser', icon: faEraser, keybind: 'KeyE' },
+        { tool: new eyedropper_tool(() => current_tool = tools.filter(t => t.name === 'pen')[0]), name: 'eyedropper', icon: faEyeDropper, keybind: 'KeyI' },
         { tool: new fill_tool, name: 'fill', icon: faFillDrip, keybind: 'KeyF' },
     ]
     let current_tool = tools[0]
