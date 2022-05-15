@@ -39,7 +39,8 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     let camera: PerspectiveCamera
     let controls: OrbitControls
     const resize = () => {
-        camera = new PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000)
+        renderer.setSize(1, 1)
+        camera = new PerspectiveCamera(75, canvas.parentElement.clientWidth / canvas.parentElement.clientHeight, 0.1, 1000)
         camera.translateZ(5)
         
         controls = new OrbitControls(camera, renderer.domElement)
@@ -47,7 +48,7 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
         controls.enablePan = false
         controls.enableZoom = false
         
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight)
+        renderer.setSize(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight)
     }
     window.addEventListener('resize', resize)
     
