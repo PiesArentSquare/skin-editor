@@ -9,6 +9,5 @@ export default defineConfig({
             "src": path.resolve(__dirname, './src')
         }
     },
-    plugins: [svelte()],
-    server: { open: true }
+    plugins: [svelte()]
 })
