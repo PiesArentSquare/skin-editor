@@ -2,11 +2,12 @@
     import { createEventDispatcher } from "svelte"
     import { in_text_field } from "src/ts/stores"
 
-    export let value
+    export let value: string | number
     export let type: 'number' | 'text' = 'number'
     export let name: string
     export let min: number = undefined
     export let max: number = undefined
+    // @ts-ignore
     $: internal_value = type === 'number' ? Math.round(value) : value
 
     let input: HTMLInputElement
@@ -59,6 +60,7 @@
         all: unset;
         font-size: 1rem;
         width: 100%;
+        cursor: text;
     }
 
     label {

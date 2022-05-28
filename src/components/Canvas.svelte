@@ -2,29 +2,33 @@
     import { onMount } from 'svelte'
     import canvas_data from 'src/ts/canvas_data'
     import { skin_section } from 'src/ts/utils/skin'
+    import { in_text_field } from 'src/ts/stores'
 
+    export let canvas: canvas_data = undefined
     export let current_section: skin_section
 
-    let canvas: HTMLCanvasElement
-    let data: canvas_data
-    export function get_data() { return data }
-    export function undo() { data.undo() }
-    export function redo() { data.redo() }
+    let html_element: HTMLCanvasElement
 
     let mounted = false
     onMount(() => {
         mounted = true
-        data = new canvas_data(canvas, current_section)
+        canvas = new canvas_data(html_element, current_section)
     })
-    $: if (mounted && current_section) data.set_section(current_section)
+    $: if (mounted && current_section) canvas.set_section(current_section)
 
+    function onkeydown(e: KeyboardEvent) {
+        if (!$in_text_field && e.code === 'KeyZ' && e.ctrlKey) {
+            if (e.shiftKey) canvas.redo()
+            else canvas.undo()
+        }
+    }
 </script>
 
 <div class="canvas-wrapper">
-    <canvas bind:this={canvas} on:mousedown={e => data.mousedown(e)} on:mousemove={e => data.mousemove(e)} style="--canvas-width: {current_section.width}"/>
+    <canvas bind:this={html_element} on:mousedown={e => canvas.mousedown(e)} on:mousemove={e => canvas.mousemove(e)} style="background-size: calc(1/{current_section.width}*100%);"/>
 </div>
 
-<svelte:window on:mouseup={e => data.mouseup(e)} on:resize={() => data.resize()}/>
+<svelte:window on:mouseup={e => canvas.mouseup(e)} on:resize={() => canvas.resize()} on:keydown={onkeydown}/>
 
 <style lang=scss>
     @use 'src/styles/common';
@@ -32,14 +36,14 @@
     .canvas-wrapper {
         display: flex;
         flex-grow: 1;
+        justify-content: center;
+        align-items: center;
     }
 
     canvas {
         display: block;
-        margin: auto;
         width: 40%;
         @include common.transparent;
-        background-size: calc(1/var(--canvas-width)*100%);
         @include common.double-border-shadow;
     }
 </style>

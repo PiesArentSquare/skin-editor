@@ -5,7 +5,7 @@
     import click_outside from 'src/ts/utils/click_outside'
 
     export let list: string[]
-    export let value: string
+    export let value: string = list[0]
     
     let open = false
 </script>
@@ -26,7 +26,6 @@
 
     .dropdown {
         position: relative;
-        margin-right: .5rem;
         cursor: pointer;
     }
 
@@ -38,6 +37,7 @@
     .selected {
         display: flex;
         align-items: center;
+        justify-content: center;
         border-radius: common.$border-radius-sm;
 
         span {

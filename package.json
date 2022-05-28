@@ -5,6 +5,7 @@
   "description": "minecraft skin editor",
   "scripts": {
     "dev": "vite",
+    "dev-host": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri"
