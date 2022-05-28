@@ -26,13 +26,15 @@
     ]
     let current_tool = tools[0]
 
+    $: enablealpha = canvas ? canvas.current_section.alpha_enabled : true
+
     let mounted = false
     onMount(() => mounted = true)
     $: if (mounted) canvas.current_tool = current_tool.tool
 </script>
 
 <div class="toolbar">
-    <ColorPicker/>
+    <ColorPicker {enablealpha}/>
     <div class="tools">
     {#each tools as tool}
         <input type="radio" bind:group={current_tool} name=tool id={tool.name} value={tool}>

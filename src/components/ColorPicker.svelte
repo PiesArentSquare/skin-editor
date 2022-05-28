@@ -9,21 +9,23 @@
     import click_outside from 'src/ts/utils/click_outside'
     
     export let enablealpha = true
-
+    
     let open = false
     
     let input_type = 'hsv'
     let hue = 0, saturation = 100, value = 100, alpha = 100
     let hex: string
     let col: color
-
+    
     let ignore = false
     $: {
         ignore = true
         current_color.set(color.from_hsv(hue, saturation / 100, value / 100, alpha / 100))
         hex = col.to_hex()
     }
-
+    
+    $: if (!enablealpha) alpha = 100
+    
     current_color.subscribe(v => {
         col = v
         if (!ignore) {
@@ -31,13 +33,13 @@
             hex = col.to_hex()
         } else ignore = false
     })
-
+    
     function set_color_from_hex() {
         ignore = true
         current_color.set(color.from_hex(hex))
         set_hsva()
     }
-
+    
     function set_hsva() {
         const [h, s, v, a] = col.to_hsv()
         hue = h
@@ -45,7 +47,7 @@
         value = v * 100
         alpha = a * 100
     }
-
+    
 </script>
 
 <div class="color-picker" style="color: {col.to_string()}" on:click|self={() => open = !open} use:click_outside on:outclick={() => open = false}>
