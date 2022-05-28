@@ -70,7 +70,7 @@
                     <InputField bind:value={alpha} max={100} min={0} name="alpha"/>
                 {/if}
             {:else}
-                <InputField bind:value={hex} type=text name="hex" on:focusout={set_color_from_hex}/>
+                <InputField bind:value={hex} name="hex" on:focusout={set_color_from_hex}/>
             {/if}
         </div>
     </div>

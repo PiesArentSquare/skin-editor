@@ -3,12 +3,10 @@
     import { in_text_field } from "src/ts/stores"
 
     export let value: string | number
-    export let type: 'number' | 'text' = 'number'
     export let name: string
     export let min: number = undefined
     export let max: number = undefined
-    // @ts-ignore
-    $: internal_value = type === 'number' ? Math.round(value) : value
+    $: internal_value = typeof(value) === 'number' ? Math.round(value) : value
 
     let input: HTMLInputElement
 
@@ -29,13 +27,13 @@
     }
 
     function onkeydown(e: KeyboardEvent) {
-        if (type === 'number' && e.code === 'KeyE') e.preventDefault()
+        if (typeof(value)  === 'number' && e.code === 'KeyE') e.preventDefault()
         else if (e.code === 'Enter') input.blur() // who tf decided this was a remotely acceptable name?
     }
 </script>
 
 <div class="input">
-{#if type === 'number'}
+{#if typeof(value)  === 'number'}
     <input bind:this={input} type="number" {min} {max} id={name} bind:value={internal_value} style="text-align: right;" on:focusout={finalize_number} on:focus={() => in_text_field.set(true)} on:keydown={onkeydown}/>
 {:else}
     <input bind:this={input} type="text" id={name} bind:value={internal_value} on:focusout={finalize_text} on:focus={() => in_text_field.set(true)} on:keydown={onkeydown}/>
