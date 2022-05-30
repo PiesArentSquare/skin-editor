@@ -20,6 +20,7 @@ const alexOuterURL = new URL("../assets/model/alexOuter.glb", import.meta.url).h
 let inner_material: MeshStandardMaterial
 let outer_material: MeshStandardMaterial
 
+let renderer: WebGLRenderer
 export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     if (!WebGL.isWebGLAvailable()) {
         canvas.parentElement.appendChild(WebGL.getWebGLErrorMessage())
@@ -33,15 +34,15 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     inner_material = new MeshStandardMaterial
     outer_material = new MeshStandardMaterial({transparent: true, side: DoubleSide})
 
-    let renderer = new WebGLRenderer({canvas: canvas})
+    renderer = new WebGLRenderer({canvas: canvas, alpha: true})
     renderer.setPixelRatio(window.devicePixelRatio)
     
     let camera: PerspectiveCamera
     let controls: OrbitControls
     const resize = () => {
-        renderer.setSize(1, 1)
         camera = new PerspectiveCamera(75, canvas.parentElement.clientWidth / canvas.parentElement.clientHeight, 0.1, 1000)
-        camera.translateZ(5)
+        camera.translateZ(3.6)
+        camera.translateY(0.5)
         
         controls = new OrbitControls(camera, renderer.domElement)
         controls.enableDamping = true
@@ -50,7 +51,6 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
         
         renderer.setSize(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight)
     }
-    window.addEventListener('resize', resize)
     
     const animate = () => {
         requestAnimationFrame(animate)
@@ -60,6 +60,12 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
 
     resize()
     animate()
+
+    return resize
+}
+
+export function clear_height() {
+    renderer.setSize(1, 1)
 }
 
 let modelLoader = new GLTFLoader

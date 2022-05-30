@@ -28,7 +28,7 @@
     <canvas bind:this={html_element} on:mousedown={e => canvas.mousedown(e)} on:mousemove={e => canvas.mousemove(e)} style="background-size: calc(1/{current_section.width}*100%);"/>
 </div>
 
-<svelte:window on:mouseup={e => canvas.mouseup(e)} on:resize={() => canvas.resize()} on:keydown={onkeydown}/>
+<svelte:window on:mouseup={e => canvas.mouseup(e)} on:keydown={onkeydown}/>
 
 <style lang=scss>
     @use 'src/styles/common';
@@ -38,12 +38,19 @@
         flex-grow: 1;
         justify-content: center;
         align-items: center;
+        margin: 1rem 1rem;
     }
-
+    
     canvas {
         display: block;
         width: 40%;
         @include common.transparent;
         @include common.double-border-shadow;
+    }
+
+    @media (min-width: 800px) {
+        .canvas-wrapper {
+            margin: 3rem 1rem;
+        }
     }
 </style>

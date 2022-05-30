@@ -8,10 +8,13 @@
     
     let canvas: HTMLCanvasElement
 
+    export let resize: () => void = undefined
+
     onMount(() => {
-        create_scene(canvas, skin)
+        resize = create_scene(canvas, skin)
         update_texture(skin.get_image_url())
     })
+
 
 </script>
 

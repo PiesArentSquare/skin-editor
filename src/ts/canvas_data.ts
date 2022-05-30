@@ -58,15 +58,34 @@ export default class canvas_data {
     resize() {
         // reset the canvas width to the original style so it can recalulate
         this.canvas.style.width = this.default_css_width
-        // set the canvas's dimensions to the nearest pixel-perfect dimensions
-        const pixel_perfect_width = (this.canvas.clientWidth - this.canvas.clientWidth % this.width)
+        // the maximum width will be the one set by css
+        const max_width = this.canvas.clientWidth
+        
+        // clear the height so it won't cause overflow
+        this.canvas.height = 0
+
+        const max_height = this.canvas.parentElement.clientHeight - this.border_width * 2
+        
+        const aspect = this.height / this.width
+        
+        let pixel_perfect_width: number
+        // if the limiting factor is the width
+        if (max_width < max_height / aspect) {
+            // the pixel perfect width is the largest multiple of width less than the max
+            pixel_perfect_width = (max_width - max_width % this.width)
+        } else {
+            // the pixel perfect height is the largest multiple of height less than the max
+            const pixel_perfect_height = Math.floor(max_height / this.height) * this.height
+            pixel_perfect_width = pixel_perfect_height / aspect
+        }
+        
         this.canvas.width = pixel_perfect_width
-        this.canvas.height = pixel_perfect_width * this.height / this.width
-        // set the css width to match
-        this.canvas.style.width = `${this.canvas.width}px`
+        this.canvas.height = pixel_perfect_width * aspect
+        this.canvas.style.width = `${pixel_perfect_width}px`
         
+        // pixel size is the ratio of canvas pixels to window pixels
         this.pixel_size = this.canvas.width / this.width
-        
+
         this.repaint()
     }
 
