@@ -7,7 +7,7 @@ let current: color
 current_color.subscribe(value => { current = value })
 
 const color_will_change = (old_c: color, new_c: color): boolean => {
-    return !(old_c.equals(new_c) && new_c.a === 1)
+    return !((old_c.equals(new_c) && new_c.a === 1) || new_c.a === 0)
 }
 
 interface brush_return {
