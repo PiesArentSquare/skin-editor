@@ -43,7 +43,8 @@
     
     canvas {
         display: block;
-        width: 40%;
+        width: 400px;
+        min-width: 40%;
         @include common.transparent;
         @include common.double-border-shadow;
     }

@@ -34,12 +34,18 @@ export interface tool {
     finish(canvas: canvas_data): command | void
 }
 
+function get_style_as_number(element: HTMLElement, prop: string) {
+    return parseFloat(window.getComputedStyle(element).getPropertyValue(prop).split('px')[0])
+}
+
 export default class canvas_data {
     
     current_section: skin_section
     private canvas: HTMLCanvasElement
     private ctx: CanvasRenderingContext2D
     private default_css_width: string
+    private default_css_min_width: string
+    private default_css_max_width: string
     private border_width: number
     private pixel_size: number
     
@@ -51,15 +57,20 @@ export default class canvas_data {
         this.canvas = canvas
         this.ctx = canvas.getContext('2d')
         this.default_css_width = canvas.style.width
-        this.border_width = parseInt(window.getComputedStyle(canvas).borderWidth.split('px')[0])
+        this.default_css_min_width = canvas.style.minWidth
+        this.default_css_max_width = canvas.style.maxWidth
+        this.border_width = get_style_as_number(canvas, 'border-width')
         this.current_section = section
     }
     
     resize() {
         // reset the canvas width to the original style so it can recalulate
         this.canvas.style.width = this.default_css_width
+        this.canvas.style.minWidth = this.default_css_min_width
+        this.canvas.style.maxWidth = this.default_css_max_width
         // the maximum width will be the one set by css
-        const max_width = this.canvas.clientWidth
+        const max_width = get_style_as_number(this.canvas, 'width')
+
         
         // clear the height so it won't cause overflow
         this.canvas.height = 0
@@ -82,6 +93,8 @@ export default class canvas_data {
         this.canvas.width = pixel_perfect_width
         this.canvas.height = pixel_perfect_width * aspect
         this.canvas.style.width = `${pixel_perfect_width}px`
+        this.canvas.style.minWidth = 'unset'
+        this.canvas.style.maxWidth = 'unset'
         
         // pixel size is the ratio of canvas pixels to window pixels
         this.pixel_size = this.canvas.width / this.width
