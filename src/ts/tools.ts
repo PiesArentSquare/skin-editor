@@ -6,8 +6,8 @@ import { current_color } from './stores'
 let current: color
 current_color.subscribe(value => { current = value })
 
-const color_will_change = (old_c: color, new_c: color): boolean => {
-    return !((old_c.equals(new_c) && new_c.a === 1) || new_c.a === 0)
+const color_will_change = (old_c: color, new_c: color, overwrite_alpha: boolean): boolean => {
+    return !((old_c.equals(new_c) && new_c.a === 1) || new_c.a === 0) || overwrite_alpha
 }
 
 interface brush_return {
@@ -20,7 +20,7 @@ abstract class brush_tool implements tool {
     protected draw(x: number, y: number, canvas: canvas_data): void {
         const p = this.visitedPixels.find(e => e === x + y * canvas.width)
         const result = this.use_color(canvas)
-        if (p === undefined && color_will_change(canvas.get_pixel(x, y), result.c)) {
+        if (p === undefined && color_will_change(canvas.get_pixel(x, y), result.c, result.overwrite)) {
             this.currentStroke.add(new paint_pixel(canvas, x, y, result.c, result.overwrite))
             this.visitedPixels.push(x + y * canvas.width)
         }
@@ -84,7 +84,7 @@ export class fill_tool implements tool {
 
     start(x: number, y: number, canvas: canvas_data): void {
         let old = canvas.get_pixel(x, y)
-        if (!color_will_change(old, current)) return
+        if (!color_will_change(old, current, false)) return
         this.fill_impl(x, y, old, canvas)
     }
     drag(_x: number, _y: number, _canvas: canvas_data): void {}
