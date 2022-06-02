@@ -3,6 +3,7 @@
     import Canvas from './Canvas.svelte'
     import Toolbar from './Toolbar.svelte'
     import SkinViewer from './SkinViewer.svelte'
+    import SectionSelector from './SectionSelector.svelte'
 
     import skin from 'src/ts/utils/skin'
     import canvas_data from 'src/ts/canvas_data'
@@ -11,6 +12,8 @@
     let steve = new skin(false)
 
     let canvas: canvas_data
+
+    let current_section = steve.head.inner.front
 
     let sv_resize: () => void
 
@@ -24,8 +27,9 @@
 <div class="container">
     <Nav/>
     <div class="main">
+        <SectionSelector skin={steve} bind:current_section current_section_name={'head inner front'}/>
         <section class="editor">
-            <Canvas bind:canvas current_section={steve.legs.left.outer.front}/>
+            <Canvas bind:canvas {current_section}/>
             <Toolbar {canvas}/>
         </section>
         <section class="skin_viewer">
@@ -34,7 +38,7 @@
     </div>
 </div>
 
-<svelte:window on:resize={on_resize}/>
+<svelte:window on:load={on_resize} on:resize={on_resize}/>
 
 <style lang=scss>
     @use 'src/styles/common';
@@ -46,8 +50,8 @@
     }
     
     .main {
-        display: flex;
-        flex-direction: column-reverse;
+        display: grid;
+        grid-template-rows: min-content 30vh 1fr;
         flex-grow: 1;
         background-color: common.$bg-color;
     }
@@ -58,27 +62,22 @@
         margin: 0;
         padding: 0;
     }
-
-    .editor {
-        flex-grow: 1;
-    }
     
     .skin_viewer {
-        height: 30vh;
+        grid-row: 2;
         overflow: hidden;
     }
 
     @media (min-width: 800px) {
         .main {
-            flex-direction: row;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: min-content 1fr;
         }
 
         .skin_viewer {
+            grid-column: 2;
+            grid-row: 1 / 3;
             height: unset;
-        }
-
-        section {
-            width: 50%;
         }
     }
 </style>
