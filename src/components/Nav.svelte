@@ -53,10 +53,12 @@
 
     .hamburger::before {
         margin-top: -8px;
+        width: 20px;
     }
 
     .hamburger::after {
         margin-top: 8px;
+        width: 15px;
     }
 
     ul {
@@ -77,11 +79,13 @@
     #hamburger-toggle:checked ~ label .hamburger::before {
         margin-top: 0;
         transform: rotate(45deg);
+        width: 25px;
     }
 
     #hamburger-toggle:checked ~ label .hamburger::after {
         margin-top: 0;
         transform: rotate(-45deg);
+        width: 25px;
     }
 
     #hamburger-toggle:checked ~ label .hamburger {
