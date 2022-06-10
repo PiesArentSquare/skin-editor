@@ -64,16 +64,16 @@ export default class canvas_data {
     }
     
     resize() {
+        // clear the height so it won't cause overflow
+        this.canvas.height = 0
+
         // reset the canvas width to the original style so it can recalulate
         this.canvas.style.width = this.default_css_width
         this.canvas.style.minWidth = this.default_css_min_width
         this.canvas.style.maxWidth = this.default_css_max_width
         // the maximum width will be the one set by css
         const max_width = get_style_as_number(this.canvas, 'width')
-
         
-        // clear the height so it won't cause overflow
-        this.canvas.height = 0
 
         const max_height = this.canvas.parentElement.clientHeight - this.border_width * 2
         

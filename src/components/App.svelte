@@ -27,7 +27,7 @@
 <div class="container">
     <Nav/>
     <div class="main">
-        <SectionSelector skin={steve} bind:current_section current_section_name={'head inner front'}/>
+        <SectionSelector skin={steve} bind:current_section/>
         <section class="editor">
             <Canvas bind:canvas {current_section}/>
             <Toolbar {canvas}/>
@@ -65,7 +65,6 @@
     
     .skin_viewer {
         grid-row: 2;
-        overflow: hidden;
     }
 
     @media (min-width: 800px) {

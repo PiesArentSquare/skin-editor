@@ -39,7 +39,7 @@ abstract class brush_tool implements tool {
 
 export class pen_tool extends brush_tool {
     protected use_color(canvas: canvas_data): brush_return {
-        return {c: current, overwrite: false}
+        return {c: current.copy(), overwrite: false}
     }
 }
 

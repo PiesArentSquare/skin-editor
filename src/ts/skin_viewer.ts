@@ -49,7 +49,7 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
         controls.enablePan = false
         controls.enableZoom = false
         
-        renderer.setSize(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight)
+        renderer.setSize(canvas.parentElement.clientWidth - 1, canvas.parentElement.clientHeight - 1)
     }
     
     const animate = () => {
