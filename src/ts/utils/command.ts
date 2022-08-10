@@ -1,13 +1,13 @@
 
-export interface command {
+export default interface i_command {
     do(): void
     undo(): void
 }
 
-export class command_group implements command {
-    private stack: command[] = []
+export class command_group implements i_command {
+    private stack: i_command[] = []
 
-    add(c: command): void {
+    add(c: i_command): void {
         c.do()
         this.stack.push(c)
     }
@@ -41,15 +41,15 @@ export class command_group implements command {
 }
 
 export class undo_redo_stack {
-    private stack: command[] = []
+    private stack: i_command[] = []
     private live_size: number = 0
 
-    do(c: command) {
+    do(c: i_command) {
         c.do()
         this.append(c)
     }
 
-    append(c: command) {
+    append(c: i_command) {
         this.stack.length = this.live_size++
         this.stack.push(c)
     }

@@ -3,7 +3,8 @@
     import ColorPicker from './ColorPicker.svelte'
 
     import { pen_tool, eraser_tool, fill_tool, eyedropper_tool } from 'src/ts/tools'
-    import canvas_data, { type tool } from 'src/ts/canvas_data'
+    import canvas_data from 'src/ts/canvas_data'
+    import type i_tool from 'src/ts/utils/tool'
     import { in_text_field } from 'src/ts/stores'
 
     import Fa from 'svelte-fa'
@@ -12,7 +13,7 @@
     export let canvas: canvas_data
 
     interface tool_entry {
-        tool: tool,
+        tool: i_tool,
         name: string,
         icon: IconDefinition,
         keybind: string,

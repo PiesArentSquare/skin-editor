@@ -1,6 +1,9 @@
-import canvas_data, { type tool, paint_pixel } from './canvas_data'
+import canvas_data from './canvas_data'
 import color from './utils/color'
-import {type command, command_group} from './utils/command'
+import {command_group} from './utils/command'
+import type i_command from './utils/command'
+import type i_tool from './utils/tool'
+import { paint_pixel } from './commands'
 import { current_color } from './stores'
 
 let current: color
@@ -14,7 +17,7 @@ interface brush_return {
     c: color,
     overwrite: boolean
 }
-abstract class brush_tool implements tool {
+abstract class brush_tool implements i_tool {
     protected currentStroke = new command_group
     protected visitedPixels = Array<number>()
     protected draw(x: number, y: number, canvas: canvas_data): void {
@@ -29,7 +32,7 @@ abstract class brush_tool implements tool {
 
     start(x: number, y: number, canvas: canvas_data): void { this.draw(x, y, canvas) }
     drag(x: number, y: number, canvas: canvas_data): void { this.draw(x, y, canvas) }
-    finish(_canvas: canvas_data): command {
+    finish(_canvas: canvas_data): i_command {
         const c = this.currentStroke.copy()
         this.currentStroke.reset()
         this.visitedPixels.length = 0
@@ -49,7 +52,7 @@ export class eraser_tool extends brush_tool {
     }
 }
 
-export class eyedropper_tool implements tool {
+export class eyedropper_tool implements i_tool {
 
     private onFinish: (() => void) | undefined
 
@@ -68,7 +71,7 @@ export class eyedropper_tool implements tool {
     }
 }
 
-export class fill_tool implements tool {
+export class fill_tool implements i_tool {
     private pixels: command_group = new command_group
     
     private fill_impl(x: number, y: number, old: color, canvas: canvas_data): void {
@@ -88,7 +91,7 @@ export class fill_tool implements tool {
         this.fill_impl(x, y, old, canvas)
     }
     drag(_x: number, _y: number, _canvas: canvas_data): void {}
-    finish(_canvas: canvas_data): void | command {
+    finish(_canvas: canvas_data): void | i_command {
         const p = this.pixels.copy()
         this.pixels.reset()
         return p

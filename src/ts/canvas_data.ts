@@ -1,38 +1,7 @@
 import color from "src/ts/utils/color"
-import { command_group, undo_redo_stack, type command } from "src/ts/utils/command"
+import { command_group, undo_redo_stack} from "src/ts/utils/command"
+import type i_tool from "./utils/tool"
 import { skin_section } from "./utils/skin"
-
-export class paint_pixel implements command {
-    private canvas: canvas_data
-    private x: number
-    private y: number
-    private old: color
-    private new: color
-    private overwrite_alpha: boolean
-    
-    constructor(canvas: canvas_data, x: number, y: number, value: color, overwrite_alpha: boolean = false) {
-        this.canvas = canvas
-        this.x = x
-        this.y = y
-        this.old = canvas.get_pixel(x, y).copy()
-        this.new = value
-        this.overwrite_alpha = overwrite_alpha
-    }
-    
-    do(): void {
-        this.canvas.paint_pixel(this.x, this.y, this.new, this.overwrite_alpha)
-    }
-    
-    undo(): void {
-        this.canvas.paint_pixel(this.x, this.y, this.old, true)
-    }
-}
-
-export interface tool {
-    start(x: number, y: number, canvas: canvas_data): void
-    drag(x: number, y: number, canvas: canvas_data): void
-    finish(canvas: canvas_data): command | void
-}
 
 function get_style_as_number(element: HTMLElement, prop: string) {
     return parseFloat(window.getComputedStyle(element).getPropertyValue(prop).split('px')[0])
@@ -51,7 +20,7 @@ export default class canvas_data {
     
     private painting = false
     private ur_stack = new undo_redo_stack
-    current_tool: tool | undefined = undefined
+    current_tool: i_tool | undefined = undefined
     
     constructor(canvas: HTMLCanvasElement, section: skin_section) {
         this.canvas = canvas
