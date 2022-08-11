@@ -40,6 +40,8 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     let camera: PerspectiveCamera
     let controls: OrbitControls
     const resize = () => {
+        renderer.setSize(1, 1)
+
         camera = new PerspectiveCamera(75, canvas.parentElement.clientWidth / canvas.parentElement.clientHeight, 0.1, 1000)
         camera.translateZ(3.6)
         camera.translateY(0.5)
@@ -61,11 +63,7 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     resize()
     animate()
 
-    return resize
-}
-
-export function clear_height() {
-    renderer.setSize(1, 1)
+    window.addEventListener('resize', resize)
 }
 
 let modelLoader = new GLTFLoader

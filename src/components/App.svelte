@@ -7,20 +7,12 @@
 
     import skin from 'src/ts/utils/skin'
     import type i_canvas from 'src/ts/utils/canvas'
-    import { clear_height } from 'src/ts/skin_viewer'
 
     let steve = new skin(false)
-
+    
     let canvas: i_canvas
-
+    
     let current_section = steve.head.inner.front
-
-    let sv_resize: () => void
-
-    function on_resize() {
-        clear_height()
-        sv_resize()
-    }
 </script>
 
 <div class="container">
@@ -32,12 +24,10 @@
             <Toolbar {canvas}/>
         </section>
         <section class="skin_viewer">
-            <SkinViewer bind:resize={sv_resize} skin={steve}/>
+            <SkinViewer skin={steve}/>
         </section>
     </div>
 </div>
-
-<svelte:window on:load={on_resize} on:resize={on_resize}/>
 
 <style lang=scss>
     @use 'src/styles/common';
