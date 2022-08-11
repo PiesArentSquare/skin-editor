@@ -1,5 +1,5 @@
 import canvas_data from './canvas_data'
-import color from './utils/color'
+import color, { colors } from './utils/color'
 import {command_group} from './utils/command'
 import type i_command from './utils/command'
 import type i_tool from './utils/tool'
@@ -48,7 +48,7 @@ export class pen_tool extends brush_tool {
 
 export class eraser_tool extends brush_tool {
     protected use_color(canvas: canvas_data): brush_return {
-        return {c: canvas.current_section.alpha_enabled ? color.transparent : color.white, overwrite: canvas.current_section.alpha_enabled}
+        return {c: canvas.current_section.alpha_enabled ? colors.transparent : colors.white, overwrite: canvas.current_section.alpha_enabled}
     }
 }
 

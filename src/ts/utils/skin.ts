@@ -1,4 +1,4 @@
-import color from './color'
+import color, { colors } from './color'
 
 export class skin_section {
     width: number
@@ -25,8 +25,8 @@ export class skin_section {
         subsection.height = height
         this.subsection_canvas = subsection.getContext("2d")
 
-        this.pixels = transparent ? Array.from(Array<color>(width * height), () => { return color.transparent }) : Array.from(Array<color>(width * height), () => { return color.white })
-        const fill_color = transparent ? color.transparent.to_string() : color.white.to_string()
+        this.pixels = transparent ? Array.from(Array<color>(width * height), () => { return colors.transparent }) : Array.from(Array<color>(width * height), () => { return colors.white })
+        const fill_color = transparent ? colors.transparent.to_string() : colors.white.to_string()
         this.output_canvas.fillStyle = fill_color
         this.output_canvas.fillRect(u, v, width, height)
         this.subsection_canvas.fillStyle = fill_color
