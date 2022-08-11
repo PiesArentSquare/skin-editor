@@ -15,12 +15,10 @@
     function finalize_number() {
         if (internal_value < min) internal_value = min
         else if (internal_value > max) internal_value = max
-        value = internal_value
-        dispatch("focusout")
-        in_text_field.set(false)
+        finalize()
     }
 
-    function finalize_text() {
+    function finalize() {
         value = internal_value
         dispatch("focusout")
         in_text_field.set(false)
@@ -36,7 +34,7 @@
 {#if typeof(value)  === 'number'}
     <input bind:this={input} type="number" {min} {max} id={name} bind:value={internal_value} style="text-align: right;" on:focusout={finalize_number} on:focus={() => in_text_field.set(true)} on:keydown={onkeydown}/>
 {:else}
-    <input bind:this={input} type="text" id={name} bind:value={internal_value} on:focusout={finalize_text} on:focus={() => in_text_field.set(true)} on:keydown={onkeydown}/>
+    <input bind:this={input} type="text" id={name} bind:value={internal_value} on:focusout={finalize} on:focus={() => in_text_field.set(true)} on:keydown={onkeydown}/>
 {/if}
     <label for="input">{name}</label>
 </div>
