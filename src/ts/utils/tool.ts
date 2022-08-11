@@ -1,8 +1,8 @@
 import type i_command from './command'
-import type canvas_data from '../canvas_data'
+import type i_canvas from './canvas'
 
 export default interface i_tool {
-    start(x: number, y: number, canvas: canvas_data): void
-    drag(x: number, y: number, canvas: canvas_data): void
-    finish(canvas: canvas_data): i_command | void
+    start(x: number, y: number, canvas: i_canvas): void
+    drag(x: number, y: number, canvas: i_canvas): void
+    finish(canvas: i_canvas): i_command | void
 }

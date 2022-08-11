@@ -1,16 +1,16 @@
 import type i_command from './utils/command'
 import color from './utils/color'
-import canvas_data from './canvas_data'
+import type i_canvas from './utils/canvas'
 
 export class paint_pixel implements i_command {
-    private canvas: canvas_data
+    private canvas: i_canvas
     private x: number
     private y: number
     private old: color
     private new: color
     private overwrite_alpha: boolean
     
-    constructor(canvas: canvas_data, x: number, y: number, value: color, overwrite_alpha: boolean = false) {
+    constructor(canvas: i_canvas, x: number, y: number, value: color, overwrite_alpha: boolean = false) {
         this.canvas = canvas
         this.x = x
         this.y = y

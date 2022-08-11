@@ -47,6 +47,14 @@ export class skin_section {
 
     get_subsection_url() { return this.subsection_canvas.canvas.toDataURL() }
 
+    get_pixel(x: number, y: number) { return this.pixels[x + y * this.width] }
+
+    load(canvas: HTMLCanvasElement) {
+        canvas.width = this.width
+        canvas.height = this.height
+        let subsection = this.output_canvas.getImageData(this.u, this.v, this.width, this.height)
+        canvas.getContext('2d').putImageData(subsection, 0, 0)
+    }
 }
 
 class limb_layer {

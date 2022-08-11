@@ -6,12 +6,12 @@
     import SectionSelector from './SectionSelector.svelte'
 
     import skin from 'src/ts/utils/skin'
-    import canvas_data from 'src/ts/canvas_data'
+    import type i_canvas from 'src/ts/utils/canvas'
     import { clear_height } from 'src/ts/skin_viewer'
 
     let steve = new skin(false)
 
-    let canvas: canvas_data
+    let canvas: i_canvas
 
     let current_section = steve.head.inner.front
 
@@ -19,7 +19,6 @@
 
     function on_resize() {
         clear_height()
-        canvas.resize()
         sv_resize()
     }
 </script>
