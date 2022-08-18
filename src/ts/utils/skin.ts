@@ -1,4 +1,5 @@
 import color, { colors } from './color'
+import { alpha_enabled } from '../stores'
 
 export class skin_section {
     width: number
@@ -54,6 +55,8 @@ export class skin_section {
         canvas.height = this.height
         let subsection = this.output_canvas.getImageData(this.u, this.v, this.width, this.height)
         canvas.getContext('2d').putImageData(subsection, 0, 0)
+        
+        alpha_enabled.set(this.alpha_enabled)
     }
 }
 

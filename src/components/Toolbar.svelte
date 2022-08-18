@@ -1,14 +1,13 @@
 <script lang=ts>
-    import { onMount } from 'svelte'
     import ColorPicker from './ColorPicker.svelte'
+    import Fa from 'svelte-fa'
+    import { faEraser, faEyeDropper, faFillDrip, faPen, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
+    
+    import { alpha_enabled, in_text_field } from 'src/ts/stores'
 
     import { pen_tool, eraser_tool, fill_tool, eyedropper_tool } from 'src/ts/tools'
     import type i_canvas from 'src/ts/utils/canvas'
     import type i_tool from 'src/ts/utils/tool'
-    import { in_text_field } from 'src/ts/stores'
-
-    import Fa from 'svelte-fa'
-    import { faEraser, faEyeDropper, faFillDrip, faPen, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
 
     export let canvas: i_canvas
 
@@ -27,15 +26,11 @@
     ]
     let current_tool = tools[0]
 
-    $: enablealpha = canvas ? canvas.current_section.alpha_enabled : true
-
-    let mounted = false
-    onMount(() => mounted = true)
-    $: if (mounted) canvas.current_tool = current_tool.tool
+    $: if (canvas) canvas.current_tool = current_tool.tool
 </script>
 
 <div class="toolbar">
-    <ColorPicker {enablealpha}/>
+    <ColorPicker enablealpha={$alpha_enabled}/>
     <div class="tools">
     {#each tools as tool}
         <input type="radio" bind:group={current_tool} name=tool id={tool.name} value={tool}>
