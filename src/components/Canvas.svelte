@@ -9,10 +9,13 @@
 
     export let current_section: skin_section
     $: if (current_section && html_element) current_section.load(html_element)
-
+    
+    let ur_stack = new undo_redo_stack
     export const canvas: i_canvas = {
         paint_pixel,
         get_pixel,
+        undo: ur_stack.undo.bind(ur_stack),
+        redo: ur_stack.redo.bind(ur_stack),
         get current_section() { return current_section },
         set current_tool(tool: i_tool) { current_tool = tool }
     }
@@ -27,7 +30,7 @@
 
     function paint_pixel(x: number, y: number, c: color, overwrite_alpha = false): void {
         if (overwrite_alpha)
-        ctx.clearRect(x, y, 1, 1)
+            ctx.clearRect(x, y, 1, 1)
         ctx.fillStyle = c.to_string()
         ctx.fillRect(x, y, 1, 1)
         
@@ -42,7 +45,6 @@
     let current_tool: i_tool | undefined
 
     let painting = false
-    let ur_stack = new undo_redo_stack
 
     function onkeydown(e: KeyboardEvent) {
         if (!$in_text_field && e.code === 'KeyZ' && e.ctrlKey) {

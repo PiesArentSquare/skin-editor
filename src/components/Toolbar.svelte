@@ -1,7 +1,7 @@
 <script lang=ts>
     import ColorPicker from './ColorPicker.svelte'
     import Fa from 'svelte-fa'
-    import { faEraser, faEyeDropper, faFillDrip, faPen, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
+    import { faEraser, faEyeDropper, faFillDrip, faPen, faRotateLeft, faRotateRight, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
     
     import { alpha_enabled, in_text_field } from 'src/ts/stores'
 
@@ -38,6 +38,8 @@
             <Fa icon={tool.icon} size=lg/>
         </label>
     {/each}
+        <div class="tool" on:click={() => canvas.undo()}><Fa icon={faRotateLeft} size=lg/></div>
+        <div class="tool" on:click={() => canvas.redo()}><Fa icon={faRotateRight} size=lg/></div>
     </div>
 </div>
 
@@ -68,14 +70,13 @@
         all: unset;
         font-size: 1rem;
     }
-
-    input:checked+label {
-        border-radius: common.$border-radius;
-        background-color: common.$secondary-color;
+    
+    input:checked+label, .tool:active {
+        background-color: common.$secondary-color !important;
         color: white;
     }
-
-    label {
+    
+    label, .tool {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -85,6 +86,11 @@
         margin-right: .5rem;
         
         cursor: pointer;
+        border-radius: common.$border-radius;
         color: common.$secondary-color;
+    }
+
+    label:hover, .tool:hover {
+        background-color: common.$bg-color;
     }
 </style>
