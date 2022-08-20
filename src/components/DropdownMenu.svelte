@@ -6,6 +6,7 @@
 
     export let list: string[]
     export let value: string = list[0]
+    let index = 0
     
     let open = false
 </script>
@@ -13,9 +14,9 @@
 <div class="dropdown" on:click={() => open = !open} use:click_outside on:outclick={() => {open = false}}>
     <div class="selected"><span>{value}</span><Fa icon={faAngleDown}/></div>
     {#if open}
-        <div class="options">
-        {#each list as option}
-            <div class="option" on:click={() => value = option}>{option}</div>
+        <div class="options" style="top: calc({-index * 100}% - .5rem)">
+        {#each list as option, i}
+            <div class="option" class:current={option === value} on:click={() => {value = option; index = i}}>{option}</div>
         {/each}
         </div>
     {/if}
@@ -35,7 +36,6 @@
     }
     
     .selected {
-        display: flex;
         align-items: center;
         justify-content: center;
         border-radius: common.$border-radius-sm;
@@ -46,13 +46,14 @@
     }
 
     .selected, .option {
+        display: flex;
+        justify-content: space-between;
         padding: .25rem .5rem;
     }
 
     .options {
         display: var(--display);
         position: absolute;
-        top: -.5rem;
         width: 100%;
         padding-block: .5rem;
         background-color: common.$secondary-color;
@@ -65,5 +66,9 @@
     .option:hover {
         background-color: common.$bg-color;
         color: black;
+    }
+
+    .current::after {
+        content: '\2022';
     }
 </style>
