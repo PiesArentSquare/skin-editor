@@ -21,32 +21,36 @@ export class skin_section {
         this.alpha_enabled = outer
         this.on_update = on_update
 
-        const subsection = document.createElement("canvas")
+        const subsection = document.createElement('canvas')
         subsection.width = width
         subsection.height = height
-        this.subsection_canvas = subsection.getContext("2d")
+        this.subsection_canvas = subsection.getContext('2d')
 
-        this.pixels = transparent ? Array.from(Array<color>(width * height), () => { return colors.transparent }) : Array.from(Array<color>(width * height), () => { return colors.white })
-        const fill_color = transparent ? colors.transparent.to_string() : colors.white.to_string()
-        this.output_canvas.fillStyle = fill_color
+        this.pixels = Array.from(Array<color>(width * height), () => { return transparent ? colors.transparent : colors.white })
+        this.output_canvas.fillStyle = transparent ? colors.transparent.to_string() : colors.white.to_string()
         this.output_canvas.fillRect(u, v, width, height)
-        this.subsection_canvas.fillStyle = fill_color
-        this.subsection_canvas.fillRect(0, 0, width, height)
     }
 
-    paint_pixel(x: number, y: number, c: color, blend: boolean = false) {
-        this.pixels[x + y * this.width] = blend ? c.alpha_blend(this.pixels[x + y * this.width]) : c.copy()
-        const fill_color = this.pixels[x + y * this.width].to_string()
-        this.output_canvas.fillStyle = fill_color
-        this.output_canvas.clearRect(x + this.u, y + this.v, 1, 1)
+    paint_pixel(x: number, y: number, c: color, overwrite_alpha: boolean = false) {
+        this.output_canvas.fillStyle = c.to_string()
+        if (overwrite_alpha)
+            this.output_canvas.clearRect(x + this.u, y + this.v, 1, 1)
         this.output_canvas.fillRect(x + this.u, y + this.v, 1, 1)
-        this.subsection_canvas.fillStyle = fill_color
-        this.subsection_canvas.clearRect(x, y, 1, 1)
-        this.subsection_canvas.fillRect(x, y, 1, 1)
+
+        if (!overwrite_alpha && c.a !== 100) {
+            const rgba = this.output_canvas.getImageData(x + this.u, y + this.v, 1, 1).data
+            this.pixels[x + y * this.width] = color.from_rgba(rgba[0], rgba[1], rgba[2], rgba[3] * 100 / 255)
+        } else {
+            this.pixels[x + y * this.width] = c.copy()
+        }
         this.on_update()
     }
 
-    get_subsection_url() { return this.subsection_canvas.canvas.toDataURL() }
+    get_subsection_url() {
+        const subsection = this.output_canvas.getImageData(this.u, this.v, this.width, this.height)
+        this.subsection_canvas.putImageData(subsection, 0, 0)
+        return this.subsection_canvas.canvas.toDataURL()
+    }
 
     get_pixel(x: number, y: number) { return this.pixels[x + y * this.width] }
 

@@ -118,20 +118,6 @@ export default class color {
     full_alpha(): color {
         return new color(this.h, this.s, this.v, 100)
     }
-
-    alpha_blend(bg: color): color {
-        const oneMinusA = 1 - this.a
-        const newalpha = this.a + bg.a * oneMinusA
-        const [bgr, bgg, bgb] = bg.to_rgba()
-        const [topr, topg, topb] = this.to_rgba()
-
-        return color.from_rgba(
-            (topr * this.a + bgr * bg.a * oneMinusA) / newalpha,
-            (topg * this.a + bgg * bg.a * oneMinusA) / newalpha,
-            (topb * this.a + bgb * bg.a * oneMinusA) / newalpha,
-            newalpha
-        )
-    }
 }
 
 export const colors = {
