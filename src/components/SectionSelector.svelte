@@ -4,9 +4,9 @@
 
     import skin_, { skin_section } from 'src/ts/utils/skin'
     import click_outside from 'src/ts/utils/click_outside'
+    import { current_section } from 'src/ts/stores'
 
     export let skin: skin_
-    export let current_section: skin_section;
 
     let current_limb = skin.head
     let current_limb_name = 'head'
@@ -20,7 +20,7 @@
         current_layer = current_limb.inner
         current_layer_name = 'inner'
 
-        current_section = current_layer.front
+        $current_section = current_layer.front
         current_section_name = 'front'
     }
 
@@ -35,7 +35,7 @@
         }
 
         // rebind the section to the one that corresponds with the current section name
-        current_section = current_layer.sections().filter(s => (s.name === current_section_name))[0].section
+        $current_section = current_layer[current_section_name]
     }
 
     let open = false
@@ -47,30 +47,30 @@
     {#if open}
         <div class="container">
             <div class="limbs">
-            {#each skin.limbs() as l}
+            {#each Object.entries(skin.limbs()) as [name, limb]}
                 <span 
                     on:click={() => {
-                        current_limb = l.limb
-                        current_limb_name = l.name
+                        current_limb = limb
+                        current_limb_name = name
                     }}
-                    class:selected={current_limb == l.limb}
+                    class:selected={current_limb == limb}
                 >
-                    {l.name}
+                    {name}
                 </span>
             {/each}
             </div>
             <div class="sections" style="--h: {current_limb.inner.front.height / current_limb.inner.top.height}fr; --w: {current_limb.inner.front.width / current_limb.inner.right.width}fr;">
-            {#each current_layer.sections() as s}
+            {#each Object.entries(current_layer) as [name, section]}
                 <div
                     class="wrapper"
-                    class:selected={current_section == s.section}
+                    class:selected={$current_section == section}
                     on:click={() => {
-                        current_section = s.section
-                        current_section_name = s.name
+                        $current_section = section
+                        current_section_name = name
                         open = false
                     }}
                 >
-                    <img src={s.section.get_subsection_url()} alt={s.name} style="background-size: calc(1/{s.section.width}*200%);">
+                    <img src={section.get_subsection_url()} alt={name} style="background-size: calc(1/{section.width}*200%);">
                 </div>
             {/each}
                 <div class="layer-select">

@@ -1,14 +1,10 @@
 <script lang=ts>
     import { onMount } from 'svelte'
-    import { skin_section } from 'src/ts/utils/skin'
-    import { in_text_field } from 'src/ts/stores'
+    import { in_text_field, current_section } from 'src/ts/stores'
     import type i_canvas from 'src/ts/utils/canvas'
     import type i_tool from 'src/ts/utils/tool'
     import { undo_redo_stack, command_group } from 'src/ts/utils/command'
     import color from 'src/ts/utils/color'
-
-    export let current_section: skin_section
-    $: if (current_section && html_element) current_section.load(html_element)
     
     let ur_stack = new undo_redo_stack
     export const canvas: i_canvas = {
@@ -16,7 +12,6 @@
         get_pixel,
         undo: ur_stack.undo.bind(ur_stack),
         redo: ur_stack.redo.bind(ur_stack),
-        get current_section() { return current_section },
         set current_tool(tool: i_tool) { current_tool = tool }
     }
 
@@ -28,17 +23,22 @@
         border_width = parseFloat(window.getComputedStyle(html_element).borderWidth.split('px')[0])
     })
 
+    $: if ($current_section && html_element) {
+        $current_section.load(html_element)
+        ur_stack = new undo_redo_stack
+    }
+
     function paint_pixel(x: number, y: number, c: color, overwrite_alpha = false): void {
         if (overwrite_alpha)
             ctx.clearRect(x, y, 1, 1)
         ctx.fillStyle = c.to_string()
         ctx.fillRect(x, y, 1, 1)
         
-        current_section.paint_pixel(x, y, c, overwrite_alpha)
+        $current_section.paint_pixel(x, y, c, overwrite_alpha)
     }
     
     function get_pixel(x: number, y: number) {
-        return current_section.get_pixel(x, y)
+        return $current_section.get_pixel(x, y)
     }
     
     
@@ -60,9 +60,9 @@
         const rect = html_element.getBoundingClientRect()
         const raw_x = e.clientX - rect.left - border_width
         const raw_y = e.clientY - rect.top - border_width
-        const x = Math.floor(raw_x * current_section.width / html_element.clientWidth)
-        const y = Math.floor(raw_y * current_section.height / html_element.clientHeight)
-        if (x >= 0 && y >= 0 && x < current_section.width && y < current_section.height) {
+        const x = Math.floor(raw_x * $current_section.width / html_element.clientWidth)
+        const y = Math.floor(raw_y * $current_section.height / html_element.clientHeight)
+        if (x >= 0 && y >= 0 && x < $current_section.width && y < $current_section.height) {
             if (start) 
                 current_tool.start(x, y, canvas)
             else
@@ -102,7 +102,7 @@
         bind:this={html_element}
         on:mousedown={onmousedown}
         on:mousemove={onmousemove}
-        style="background-size: {100/current_section.width}%"
+        style="background-size: {100/$current_section.width}%"
     />
 </div>
 

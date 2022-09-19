@@ -7,20 +7,21 @@
 
     import skin from 'src/ts/utils/skin'
     import type i_canvas from 'src/ts/utils/canvas'
+    import { current_section } from 'src/ts/stores'
 
     let steve = new skin(false)
     
     let canvas: i_canvas
     
-    let current_section = steve.head.inner.front
+    current_section.set(steve.head.inner.front)
 </script>
 
 <div class="container">
-    <Nav/>
+    <Nav bind:skin={steve}/>
     <div class="main">
-        <SectionSelector skin={steve} bind:current_section/>
+        <SectionSelector skin={steve}/>
         <section class="editor">
-            <Canvas bind:canvas {current_section}/>
+            <Canvas bind:canvas/>
             <Toolbar {canvas}/>
         </section>
         <section class="skin_viewer">

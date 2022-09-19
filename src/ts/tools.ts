@@ -4,10 +4,14 @@ import {command_group} from './utils/command'
 import type i_command from './utils/command'
 import type i_tool from './utils/tool'
 import { paint_pixel } from './commands'
-import { current_color } from './stores'
+import { current_color, current_section } from './stores'
+import { skin_section } from './utils/skin'
 
 let current: color
 current_color.subscribe(value => { current = value })
+
+let section: skin_section
+current_section.subscribe(value => { section = value })
 
 const color_will_change = (old_c: color, new_c: color, overwrite_alpha: boolean): boolean => {
     return !((old_c.equals(new_c) && new_c.a === 1) || new_c.a === 0) || overwrite_alpha
@@ -21,11 +25,11 @@ abstract class brush_tool implements i_tool {
     protected currentStroke = new command_group
     protected visitedPixels = Array<number>()
     protected draw(x: number, y: number, canvas: i_canvas): void {
-        const p = this.visitedPixels.find(e => e === x + y * canvas.current_section.width)
+        const p = this.visitedPixels.find(e => e === x + y * section.width)
         const result = this.use_color(canvas)
         if (p === undefined && color_will_change(canvas.get_pixel(x, y), result.c, result.overwrite)) {
             this.currentStroke.add(new paint_pixel(canvas, x, y, result.c, result.overwrite))
-            this.visitedPixels.push(x + y * canvas.current_section.width)
+            this.visitedPixels.push(x + y * section.width)
         }
     }
     protected abstract use_color(canvas: i_canvas): brush_return
@@ -48,7 +52,7 @@ export class pen_tool extends brush_tool {
 
 export class eraser_tool extends brush_tool {
     protected use_color(canvas: i_canvas): brush_return {
-        return {c: canvas.current_section.alpha_enabled ? colors.transparent : colors.white, overwrite: canvas.current_section.alpha_enabled}
+        return {c: section.alpha_enabled ? colors.transparent : colors.white, overwrite: section.alpha_enabled}
     }
 }
 
@@ -75,7 +79,7 @@ export class fill_tool implements i_tool {
     private pixels: command_group = new command_group
     
     private fill_impl(x: number, y: number, old: color, canvas: i_canvas): void {
-        if (x < 0 || x >= canvas.current_section.width || y < 0 || y >= canvas.current_section.height) return
+        if (x < 0 || x >= section.width || y < 0 || y >= section.height) return
         if (!canvas.get_pixel(x, y).equals(old)) return
         this.pixels.add(new paint_pixel(canvas, x, y, current))
 

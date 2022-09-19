@@ -1,17 +1,55 @@
+<script lang=ts>
+    import OpenDialog from './OpenDialog.svelte'
+
+    import { onMount } from 'svelte'
+    import skin_ from 'src/ts/utils/skin'
+
+    export let skin: skin_
+    let savelink: HTMLAnchorElement
+    onMount(() => {
+        savelink.setAttribute("href", skin.get_image_url())
+        skin.subscribe(() => savelink.setAttribute("href", skin.get_image_url()))
+    })
+
+    let dialog_open = false
+    let slim: boolean
+    let file_input: HTMLInputElement
+    let files: FileList
+    $: if (files && files[0]) {
+        dialog_open = true;
+    }
+    
+    function ondone() {
+        dialog_open = false
+        if (files && files[0]) {
+            skin.load(slim, files[0])
+            file_input.value = ''
+        } else {
+            skin.load(slim)
+        }
+    }
+</script>
+    
 <nav>
     <div class="inner">
         <input type="checkbox" id="hamburger-toggle"/>
-        <label for="hamburger-toggle">
+        <label class="hamburger-label" for="hamburger-toggle">
             <div class="hamburger"></div>
         </label>
         <ul>
-            <li id="new">new</li>
-            <li id="open">open</li>
-            <li id="save">save</li>
+            <li id="new" on:click={() => dialog_open = true}>new</li>
+            <li id="open">
+                <input id="open-button" type="file" bind:files={files} bind:this={file_input} />
+                <label for="open-button">open</label>
+            </li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li id="save"><a bind:this={savelink} download>save</a></li>
         </ul>
         <h1>untitled*</h1>
     </div>
 </nav>
+
+<OpenDialog open={dialog_open} bind:slim on:submit={ondone}/>
 
 <style lang="scss">
     @use 'src/styles/common';
@@ -29,13 +67,21 @@
         grid-template-columns: 1fr 1fr 1fr;
     }
 
-    label {
+    .hamburger-label {
         display: flex;
         height: 100%;
     }
 
+    li, label {
+        cursor: pointer;
+    }
+
     input {
         display: none;
+    }
+
+    a {
+        all: unset;
     }
 
     .hamburger,
@@ -103,7 +149,7 @@
     }
 
     @media (min-width: 800px) {
-        label, .hamburger {
+        .hamburger-label, .hamburger {
             display: none;
         }
 

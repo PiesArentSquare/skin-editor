@@ -3,7 +3,7 @@ import {
     Mesh, MeshStandardMaterial,
     AmbientLight,
     TextureLoader,
-    DoubleSide, NearestFilter
+    DoubleSide, NearestFilter, Group
 } from 'three'
 
 import WebGL from 'three/examples/jsm/capabilities/WebGL'
@@ -21,14 +21,15 @@ let inner_material: MeshStandardMaterial
 let outer_material: MeshStandardMaterial
 
 let renderer: WebGLRenderer
+let scene: Scene
 export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     if (!WebGL.isWebGLAvailable()) {
         canvas.parentElement.appendChild(WebGL.getWebGLErrorMessage())
         return
     }
 
-    let scene = new Scene
-    load_assets(scene, skin.alex)
+    scene = new Scene
+    load_assets(skin.slim)
     scene.add(new AmbientLight(0xffffff))
 
     inner_material = new MeshStandardMaterial
@@ -66,22 +67,46 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     window.addEventListener('resize', resize)
 }
 
+let steve_inner: Group
+let steve_outer: Group
+let alex_inner: Group
+let alex_outer: Group
+
 let modelLoader = new GLTFLoader
-async function load_assets(scene: Scene, alex: boolean) {
-    const inner_model = (await modelLoader.loadAsync(alex ? alexInnerURL : steveInnerURL)).scene
-    const outer_model = (await modelLoader.loadAsync(alex ? alexOuterURL : steveOuterURL)).scene
+async function load_assets(slim: boolean) {
+    steve_inner = (await modelLoader.loadAsync(steveInnerURL)).scene
+    steve_outer = (await modelLoader.loadAsync(steveOuterURL)).scene
+    alex_inner = (await modelLoader.loadAsync(alexInnerURL)).scene
+    alex_outer = (await modelLoader.loadAsync(alexOuterURL)).scene
     
-    inner_model.traverse(node => {
+    steve_inner.traverse(node => {
         if (!(node instanceof Mesh)) return
         node.material = inner_material
     })
     
-    outer_model.traverse(node => {
+    steve_outer.traverse(node => {
         if (!(node instanceof Mesh)) return
         node.material = outer_material
     })
+
+    alex_inner.traverse(node => {
+        if (!(node instanceof Mesh)) return
+        node.material = inner_material
+    })
     
-    scene.add(inner_model, outer_model)
+    alex_outer.traverse(node => {
+        if (!(node instanceof Mesh)) return
+        node.material = outer_material
+    })
+
+    set_slim(slim)
+}
+
+export function set_slim(slim: boolean) {
+    scene.remove(slim ? steve_inner : alex_inner)
+    scene.remove(slim ? steve_outer : alex_outer)
+    scene.add(slim ? alex_inner : steve_inner)
+    scene.add(slim ? alex_outer : steve_outer)
 }
 
 let texture_loader = new TextureLoader
