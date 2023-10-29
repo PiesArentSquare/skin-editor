@@ -6,9 +6,9 @@ import {
     DoubleSide, NearestFilter, Group
 } from 'three'
 
-import WebGL from 'three/examples/jsm/capabilities/WebGL'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import WebGL from 'three/examples/jsm/capabilities/WebGL.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 import skin from './utils/skin'
 
@@ -24,7 +24,7 @@ let renderer: WebGLRenderer
 let scene: Scene
 export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     if (!WebGL.isWebGLAvailable()) {
-        canvas.parentElement.appendChild(WebGL.getWebGLErrorMessage())
+        canvas.parentElement!.appendChild(WebGL.getWebGLErrorMessage())
         return
     }
 
@@ -43,7 +43,7 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     const presize = () => renderer.setSize(1, 1)
     const resize = () => {
 
-        camera = new PerspectiveCamera(75, canvas.parentElement.clientWidth / canvas.parentElement.clientHeight, 0.1, 1000)
+        camera = new PerspectiveCamera(75, canvas.parentElement!.clientWidth / canvas.parentElement!.clientHeight, 0.1, 1000)
         camera.translateZ(3.6)
         camera.translateY(0.5)
 
@@ -52,7 +52,7 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
         controls.enablePan = false
         controls.enableZoom = false
 
-        renderer.setSize(canvas.parentElement.clientWidth - 1, canvas.parentElement.clientHeight - 1)
+        renderer.setSize(canvas.parentElement!.clientWidth - 1, canvas.parentElement!.clientHeight - 1)
     }
 
     const animate = () => {

@@ -10,16 +10,18 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.44",
-    "@tsconfig/svelte": "^3.0.0",
-    "@types/three": "^0.139.0",
-    "sass": "^1.49.9",
-    "svelte": "^3.48.0",
-    "svelte-check": "^2.7.0",
-    "svelte-preprocess": "^4.10.6",
-    "tslib": "^2.4.0",
-    "typescript": "^4.6.2",
-    "vite": "^2.8.6"
+    "@sveltejs/vite-plugin-svelte": "^2.4.6",
+    "@tsconfig/svelte": "^5.0.2",
+    "@types/node": "^20.8.9",
+    "@types/three": "^0.158.0",
+    "path": "^0.12.7",
+    "sass": "^1.69.5",
+    "svelte": "^4.2.2",
+    "svelte-check": "^3.5.2",
+    "svelte-preprocess": "^5.0.4",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0"
   },
   "author": "piesarentsquare",
   "license": "ISC",

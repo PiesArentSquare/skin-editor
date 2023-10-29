@@ -18,7 +18,7 @@
     
     current_section.set(steve.head.inner.front)
 
-    function onresize(e: UIEvent) {
+    function onresize() {
         canvas_resizer.on_presize()
         viewer_resizer.on_presize()
 
