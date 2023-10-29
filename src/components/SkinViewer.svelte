@@ -2,6 +2,7 @@
     import { onMount } from 'svelte'
     import create_scene, { update_texture, set_slim } from 'src/ts/skin_viewer'
     import skin_ from 'src/ts/utils/skin'
+    import type i_resizer from 'src/ts/utils/resizer';
 
     export let skin: skin_
     let slim: boolean
@@ -14,12 +15,17 @@
     })
     
     let canvas: HTMLCanvasElement
+    let resize: () => void, presize: () => void
 
     onMount(() => {
-        create_scene(canvas, skin)
+        [presize, resize] = create_scene(canvas, skin)
         update_texture(skin.get_image_url())
     })
 
+    export const resizer: i_resizer = {
+        on_presize: () => presize(),
+        on_resize: () => resize(),
+    }
 
 </script>
 

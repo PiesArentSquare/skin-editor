@@ -5,6 +5,7 @@
     import type i_tool from 'src/ts/utils/tool'
     import { undo_redo_stack, command_group } from 'src/ts/utils/command'
     import color from 'src/ts/utils/color'
+    import type i_resizer from 'src/ts/utils/resizer'
     
     let ur_stack = new undo_redo_stack
     export const canvas: i_canvas = {
@@ -15,17 +16,40 @@
         set current_tool(tool: i_tool) { current_tool = tool }
     }
 
+    export const resizer: i_resizer = {
+        on_presize() {
+            html_element.style.width = '1px'
+            html_element.style.height = '1px'
+        },
+
+        on_resize() {
+            const max_width = html_element.parentElement.clientWidth,
+                max_height = html_element.parentElement.clientHeight
+
+            console.log(max_height)
+
+            const width_ratio = max_width / $current_section.width
+            const height_ratio = max_height / $current_section.height
+            const scale = width_ratio < height_ratio ? width_ratio : height_ratio
+
+            html_element.style.width = `${$current_section.width * scale}px`
+            html_element.style.height = `${$current_section.height * scale}px`
+        },
+    }
+
     let html_element: HTMLCanvasElement
     let ctx: CanvasRenderingContext2D
     let border_width: number
     onMount(() => {
-        ctx = html_element.getContext('2d')
+        ctx = html_element.getContext('2d', { willReadFrequently: true })
         border_width = parseFloat(window.getComputedStyle(html_element).borderWidth.split('px')[0])
     })
 
     $: if ($current_section && html_element) {
         $current_section.load(html_element)
         ur_stack = new undo_redo_stack
+        resizer.on_presize()
+        resizer.on_resize()
     }
 
     function paint_pixel(x: number, y: number, c: color, overwrite_alpha = false): void {
@@ -95,6 +119,7 @@
     function onmouseup(e: MouseEvent) {
         if (painting) finish()
     }
+
 </script>
 
 <div class="canvas-wrapper">
@@ -106,7 +131,10 @@
     />
 </div>
 
-<svelte:window on:mouseup={onmouseup} on:keydown={onkeydown}/>
+<svelte:window
+    on:mouseup={onmouseup}
+    on:keydown={onkeydown}
+/>
 
 <style lang=scss>
     @use 'src/styles/common';
@@ -121,9 +149,6 @@
     
     canvas {
         display: block;
-        width: 400px;
-        max-width: 100%;
-        min-width: 40%;
         @include common.transparent;
         @include common.double-border-shadow;
     }

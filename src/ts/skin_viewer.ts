@@ -33,28 +33,28 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     scene.add(new AmbientLight(0xffffff))
 
     inner_material = new MeshStandardMaterial
-    outer_material = new MeshStandardMaterial({transparent: true, side: DoubleSide})
+    outer_material = new MeshStandardMaterial({ transparent: true, side: DoubleSide })
 
-    renderer = new WebGLRenderer({canvas: canvas, alpha: true})
+    renderer = new WebGLRenderer({ canvas: canvas, alpha: true })
     renderer.setPixelRatio(window.devicePixelRatio)
-    
+
     let camera: PerspectiveCamera
     let controls: OrbitControls
+    const presize = () => renderer.setSize(1, 1)
     const resize = () => {
-        renderer.setSize(1, 1)
 
         camera = new PerspectiveCamera(75, canvas.parentElement.clientWidth / canvas.parentElement.clientHeight, 0.1, 1000)
         camera.translateZ(3.6)
         camera.translateY(0.5)
-        
+
         controls = new OrbitControls(camera, renderer.domElement)
         controls.enableDamping = true
         controls.enablePan = false
         controls.enableZoom = false
-        
+
         renderer.setSize(canvas.parentElement.clientWidth - 1, canvas.parentElement.clientHeight - 1)
     }
-    
+
     const animate = () => {
         requestAnimationFrame(animate)
         controls.update()
@@ -64,7 +64,7 @@ export default function create_scene(canvas: HTMLCanvasElement, skin: skin) {
     resize()
     animate()
 
-    window.addEventListener('resize', resize)
+    return [presize, resize]
 }
 
 let steve_inner: Group
@@ -78,12 +78,12 @@ async function load_assets(slim: boolean) {
     steve_outer = (await modelLoader.loadAsync(steveOuterURL)).scene
     alex_inner = (await modelLoader.loadAsync(alexInnerURL)).scene
     alex_outer = (await modelLoader.loadAsync(alexOuterURL)).scene
-    
+
     steve_inner.traverse(node => {
         if (!(node instanceof Mesh)) return
         node.material = inner_material
     })
-    
+
     steve_outer.traverse(node => {
         if (!(node instanceof Mesh)) return
         node.material = outer_material
@@ -93,7 +93,7 @@ async function load_assets(slim: boolean) {
         if (!(node instanceof Mesh)) return
         node.material = inner_material
     })
-    
+
     alex_outer.traverse(node => {
         if (!(node instanceof Mesh)) return
         node.material = outer_material
