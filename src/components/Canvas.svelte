@@ -23,8 +23,8 @@
         },
 
         on_resize() {
-            const max_width = html_element.parentElement.clientWidth,
-                max_height = html_element.parentElement.clientHeight
+            const max_width = html_element.parentElement!.clientWidth - border_width * 2,
+                max_height = html_element.parentElement!.clientHeight - border_width * 2
 
             console.log(max_height)
 
@@ -41,7 +41,7 @@
     let ctx: CanvasRenderingContext2D
     let border_width: number
     onMount(() => {
-        ctx = html_element.getContext('2d', { willReadFrequently: true })
+        ctx = html_element.getContext('2d', { willReadFrequently: true })!
         border_width = parseFloat(window.getComputedStyle(html_element).borderWidth.split('px')[0])
     })
 
