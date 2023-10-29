@@ -1,128 +1,206 @@
-// h in [0, 360); s, v, a in [0, 100]
 export default class color {
-    private hue: number
-    get h(): number { return this.hue }
-    set h(v: number) { this.hue = v % 360 }
-    s: number
-    v: number
+    r: number
+    g: number
+    b: number
     a: number
 
-    constructor(hue: number, saturation: number, value: number, alpha: number = 100) {
-        this.h = hue
-        this.s = saturation
-        this.v = value
-        this.a = alpha
+    private constructor(r: number, g: number, b: number, a: number) {
+        this.r = r
+        this.g = g
+        this.b = b
+        this.a = a
     }
 
-    // h in [0, 360); s, l, a in [0, 100]
-    to_hsla(): [h: number, s: number, l: number, a: number] {
-        const l = this.v * (1 - this.s / 200)
-        const m = Math.min(l, 100 - l)
-        const s = m ? 100 * (this.v - l) / m : 0
-        return [this.h, s, l, this.a]
+    static rgb(r: number, g: number, b: number, a: number = 255): color {
+        return new color(Math.round(r), Math.round(g), Math.round(b), Math.round(a))
     }
 
-    // r, g, b in [0, 255], a in [0, 100]
-    to_rgba(): [r: number, g: number, b: number, a: number] {
-        const s = this.s / 100
-        const v = this.v / 100
+    static hsv_to_rgb(h: number, s: number, v: number) {
+        h = h % 360
+        s = s / 100
+        v = v / 100
+
         const c = v * s
-        const x = c * (1 - Math.abs((this.h / 60) % 2 - 1))
+        const x = c * (1 - Math.abs((h / 60) % 2 - 1))
         const m = v - c
 
         let r: number, g: number, b: number
-        if (this.h < 60) {
-            r = c; g = x; b = 0
-        } if (60 <= this.h && this.h < 120) {
-            r = x; g = c; b = 0
-        } else if (120 <= this.h && this.h < 180) {
-            r = 0; g = c; b = x
-        } else if (180 <= this.h && this.h < 240) {
-            r = 0; g = x; b = c
-        } else if (240 <= this.h && this.h < 300) {
-            r = x; g = 0; b = c
-        } else if (300 <= this.h && this.h < 360) {
-            r = c; g = 0; b = x
+        if (h < 60) {
+            r = c; g = x; b = 0;
+        } else if (60 <= h && h < 120) {
+            r = x; g = c; b = 0;
+        } else if (120 <= h && h < 180) {
+            r = 0; g = c; b = x;
+        } else if (180 <= h && h < 240) {
+            r = 0; g = x; b = c;
+        } else if (240 <= h && h < 300) {
+            r = x; g = 0; b = c;
+        } else {
+            r = c; g = 0; b = x;
         }
 
-        r = Math.round((r + m) * 255)
-        g = Math.round((g + m) * 255)
-        b = Math.round((b + m) * 255)
-
-        return [r, g, b, this.a]
+        return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)]
     }
 
-    to_hex(): string {
-        const [r, g, b, a] = this.to_rgba()
-        const rgba = [
-            r.toString(16),
-            g.toString(16),
-            b.toString(16),
-            (Math.floor(a * 255 / 100)).toString(16)
-        ]
-        rgba.forEach((c, i) => {
-            if (c.length === 1) rgba[i] = "0" + c
-        })
-        return "#" + rgba[0] + rgba[1] + rgba[2] + (a === 100 ? "" : rgba[3])
+    set_hsv(h: number, s: number, v: number, a: number = 255) {
+        [this.r, this.g, this.b] = color.hsv_to_rgb(h, s, v)
+        this.a = a
+        return this
     }
 
-    // r, g, b in [0, 255], a in [0, 100]
-    static from_rgba(r: number, g: number, b: number, a: number = 100): color {
-        r = r / 255
-        g = g / 255
-        b = b / 255
+    static hsv(h: number, s: number, v: number, a: number = 255) {
+        return new color(0, 0, 0, 0).set_hsv(h, s, v, a)
+    }
+
+    static hex_to_rgb(hex: string) {
+        if (hex[0] === '#') hex = hex.substring(1)
+        if (hex.length !== 6 && hex.length !== 8) throw 'hex code invalid length'
+
+        const r = parseInt(hex.substring(0, 2), 16)
+        const g = parseInt(hex.substring(2, 4), 16)
+        const b = parseInt(hex.substring(4, 6), 16)
+        const a = hex.length === 6 ? 255 : parseInt(hex.substring(6, 8), 16)
+
+        if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) throw 'invalid hex code'
+        return [r, g, b, a]
+    }
+
+    set_hex(hex: string) {
+        [this.r, this.g, this.b, this.a] = color.hex_to_rgb(hex)
+        return this
+    }
+
+    static hex(hex: string) {
+        return new color(0, 0, 0, 0).set_hex(hex)
+    }
+
+    to_hsv(): [number, number, number, number] {
+        const r = this.r / 255
+        const g = this.g / 255
+        const b = this.b / 255
 
         const cmax = Math.max(r, g, b)
         const cmin = Math.min(r, g, b)
         const delta = cmax - cmin
 
         let h: number
-        if (delta === 0)     h = 0
-        else if (cmax === r) h = 60 * (((g - b) / delta + 6) % 6)
-        else if (cmax === g) h = 60 * (((b - r) / delta) + 2)
-        else                 h = 60 * (((r - g) / delta) + 4)
+        if (delta === 0)
+            h = 0
+        else if (cmax === r)
+            h = 60 * (((g - b) / delta + 6) % 6)
+        else if (cmax === g)
+            h = 60 * (((b - r) / delta) + 2)
+        else
+            h = 60 * (((r - g) / delta) + 4)
 
         const s = cmax ? delta / cmax * 100 : 0
         const v = cmax * 100
 
-        return new color(h, s, v, a)
+        return [h, s, v, this.a]
     }
 
-    static from_hex(hex: string): color {
-        if (hex[0] === '#') hex = hex.substring(1)
-        if (!(hex.length === 6 || hex.length === 8)) throw 'hex is the wrong length'
-
-        const r = parseInt(hex.substring(0, 2), 16)
-        const g = parseInt(hex.substring(2, 4), 16)
-        const b = parseInt(hex.substring(4, 6), 16)
-        let a = 100
-        if (hex.length > 6) a = parseInt(hex.substring(6, 8), 16) / 255 * 100
-        if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) throw 'invalid hex code'
-
-        return color.from_rgba(r, g, b, a)
+    to_hex(): string {
+        const rgba = [this.r, this.g, this.b, this.a]
+            .map(n => n.toString(16))
+            .map(c => c.length === 1 ? '0' + c : c)
+            .join('')
+        return '#' + rgba
     }
 
     to_string(): string {
-        const [h, s, l, a] = this.to_hsla()
-        return `hsla(${h}, ${s}%, ${l}%, ${a / 100})`
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 255})`
+    }
+
+    full_alpha_string(): string {
+        return `rgba(${this.r}, ${this.g}, ${this.b}, 1)`
     }
 
     equals(rhs: color): boolean {
-        return rhs.h === this.h && rhs.s === this.s && rhs.v === this.v && rhs.a === this.a
+        return this.r === rhs.r &&
+            this.g === rhs.g &&
+            this.b === rhs.b &&
+            this.a === rhs.a
     }
 
     copy(): color {
-        return new color(this.h, this.s, this.v, this.a)
+        return new color(this.r, this.g, this.b, this.a)
     }
 
-    full_alpha(): color {
-        return new color(this.h, this.s, this.v, 100)
-    }
 }
 
 export const colors = {
-    red: new color(0, 100, 100),
-    white: new color(0, 0, 100),
-    black: new color(0, 0, 0),
-    transparent: new color(0, 0, 100, 0)
+    red: color.rgb(255, 0, 0),
+    white: color.rgb(255, 255, 255),
+    black: color.rgb(0, 0, 0),
+    transparent: color.rgb(0, 0, 0, 0)
+}
+
+enum subscribe_type {
+    hex = 1,
+    hsv = 2,
+    all = hex | hsv
+}
+
+type subscriber = [subscribe_type, (c: color) => void]
+
+export function color_store(value: color) {
+    let subscribers = new Set<subscriber>();
+
+    function set(new_value: color) {
+        if (!new_value.equals(value)) {
+            value = new_value
+            for (const sub of subscribers)
+                sub[1](value)
+        }
+    }
+
+    function set_hsva(h: number, s: number, v: number, a: number) {
+        const new_value = color.hsv(h, s, v, a)
+        if (!new_value.equals(value)) {
+            value = new_value
+            for (const sub of subscribers) {
+                if (sub[0] & subscribe_type.hsv)
+                    sub[1](value)
+            }
+        }
+    }
+
+    function set_hex(hex: string) {
+        const new_value = color.hex(hex)
+        if (!new_value.equals(value)) {
+            value = new_value
+            for (const sub of subscribers) {
+                if (sub[0] & subscribe_type.hsv)
+                    sub[1](value)
+            }
+        }
+    }
+
+    function subscribe(run: (c: color) => void) {
+        const sub: subscriber = [subscribe_type.all, run]
+        subscribers.add(sub)
+        run(value)
+        return () => subscribers.delete(sub)
+    }
+
+    function subscribe_hsva(run: (h: number, s: number, v: number, a: number) => void) {
+        const r = (c: color) => {
+            const [h, s, v, a] = value.to_hsv()
+            run(h, s, v, a)
+        }
+        const sub: subscriber = [subscribe_type.hsv, r]
+        subscribers.add(sub)
+        r(value)
+        return () => subscribers.delete(sub)
+    }
+
+    function subscribe_hex(run: (hex: string) => void) {
+        const r = (c: color) => run(value.to_hex())
+        const sub: subscriber = [subscribe_type.hex, r]
+        subscribers.add(sub)
+        r(value)
+        return () => subscribers.delete(sub)
+    }
+
+    return { subscribe, subscribe_hex, subscribe_hsva, set, set_hex, set_hsva }
 }

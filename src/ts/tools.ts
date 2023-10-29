@@ -1,6 +1,6 @@
 import type i_canvas from './utils/canvas'
 import color, { colors } from './utils/color'
-import {command_group} from './utils/command'
+import { command_group } from './utils/command'
 import type i_command from './utils/command'
 import type i_tool from './utils/tool'
 import { paint_pixel } from './commands'
@@ -14,7 +14,7 @@ let section: skin_section
 current_section.subscribe(value => { section = value })
 
 const color_will_change = (old_c: color, new_c: color, overwrite_alpha: boolean): boolean => {
-    return !((old_c.equals(new_c) && new_c.a === 1) || new_c.a === 0) || overwrite_alpha
+    return !((old_c.equals(new_c) && new_c.a === 255) || new_c.a === 0) || overwrite_alpha
 }
 
 interface brush_return {
@@ -46,13 +46,13 @@ abstract class brush_tool implements i_tool {
 
 export class pen_tool extends brush_tool {
     protected use_color(canvas: i_canvas): brush_return {
-        return {c: current.copy(), overwrite: false}
+        return { c: current.copy(), overwrite: false }
     }
 }
 
 export class eraser_tool extends brush_tool {
     protected use_color(canvas: i_canvas): brush_return {
-        return {c: section.alpha_enabled ? colors.transparent : colors.white, overwrite: section.alpha_enabled}
+        return { c: section.alpha_enabled ? colors.transparent : colors.white, overwrite: section.alpha_enabled }
     }
 }
 
@@ -71,13 +71,13 @@ export class eyedropper_tool implements i_tool {
         current_color.set(canvas.get_pixel(x, y))
     }
     finish(_canvas: i_canvas): void {
-        if(this.onFinish) this.onFinish()
+        if (this.onFinish) this.onFinish()
     }
 }
 
 export class fill_tool implements i_tool {
     private pixels: command_group = new command_group
-    
+
     private fill_impl(x: number, y: number, old: color, canvas: i_canvas): void {
         if (x < 0 || x >= section.width || y < 0 || y >= section.height) return
         if (!canvas.get_pixel(x, y).equals(old)) return
@@ -94,7 +94,7 @@ export class fill_tool implements i_tool {
         if (!color_will_change(old, current, false)) return
         this.fill_impl(x, y, old, canvas)
     }
-    drag(_x: number, _y: number, _canvas: i_canvas): void {}
+    drag(_x: number, _y: number, _canvas: i_canvas): void { }
     finish(_canvas: i_canvas): void | i_command {
         const p = this.pixels.copy()
         this.pixels.reset()

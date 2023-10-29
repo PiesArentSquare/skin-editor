@@ -9,34 +9,58 @@
     import click_outside from 'src/ts/utils/click_outside'
     
     export let enablealpha = true
-    $: if (!enablealpha) $current_color.a = 100
+    // $: if (!enablealpha) $current_color.a = 255
     
     let open = false
     let input_type = 'hsv'
     
+    // $: hex = $current_color.to_hex()
+    // function set_color_from_hex() { $current_color = color.hex(hex) }
+
+    let h: number, s: number, v: number, a: number
     let hex: string
-    $: hex = $current_color.to_hex()
-    function set_color_from_hex() { $current_color = color.from_hex(hex) }
+    let color_string: string, full_alpha_string: string
+
+    current_color.subscribe_hsva((hue, sat, val, alp) => {
+        h = hue
+        s = sat
+        v = val
+        a = alp
+    })
+
+    current_color.subscribe_hex(hex_code => hex = hex_code)
+
+    current_color.subscribe(c => {
+        color_string = c.to_string()
+        full_alpha_string = c.full_alpha_string()
+    })
+
+    function set_color_from_hex() {
+        current_color.set_hex(hex)
+    }
+
+    $: current_color.set_hsva(h, s, v, a)
+    
 </script>
 
-<div class="color-picker" style="color: {$current_color.to_string()}" on:click|self={() => open = !open} use:click_outside on:outclick={() => open = false}>
+<div class="color-picker" style="color: {color_string}" on:click|self={() => open = !open} use:click_outside on:outclick={() => open = false}>
 {#if open}
     <div class="picker-window">
-        <div class="slider-area" style="--color:{$current_color.to_string()}; --color-noalpha:{$current_color.full_alpha().to_string()}; --hue:{$current_color.h}">
-            <DualSlider bind:x={$current_color.s} bind:y={$current_color.v} name="sv"/>
-            <VerticalSlider bind:value={$current_color.h} max={359} name="hue"/>
+        <div class="slider-area" style="--color:{color_string}; --color-noalpha:{full_alpha_string}; --hue:{h}">
+            <DualSlider bind:x={s} bind:y={v} name="sv"/>
+            <VerticalSlider bind:value={h} max={359} name="hue"/>
             {#if enablealpha}
-            <VerticalSlider bind:value={$current_color.a} inverted name="alpha"/>
+            <VerticalSlider bind:value={a} inverted name="alpha"/>
             {/if}
         </div>
         <div class="input-area">
             <DropdownMenu list={['hsv', 'hex']} bind:value={input_type}/>
             {#if input_type === 'hsv'}
-                <InputField bind:value={$current_color.h} max={359} min={0} name="hue"/>
-                <InputField bind:value={$current_color.s} max={100} min={0} name="saturation"/>
-                <InputField bind:value={$current_color.v} max={100} min={0} name="value"/>
+                <InputField bind:value={h} max={359} min={0} name="hue"/>
+                <InputField bind:value={s} max={100} min={0} name="saturation"/>
+                <InputField bind:value={v} max={100} min={0} name="value"/>
                 {#if enablealpha}
-                    <InputField bind:value={$current_color.a} max={100} min={0} name="alpha"/>
+                    <InputField bind:value={a} max={255} min={0} name="alpha"/>
                 {/if}
             {:else}
                 <InputField bind:value={hex} name="hex" on:focusout={set_color_from_hex}/>

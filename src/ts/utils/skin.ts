@@ -7,7 +7,7 @@ export class skin_section {
     height: number
     u: number
     v: number
-    pixel_cache:  color[]
+    pixel_cache: color[]
     output_canvas: CanvasRenderingContext2D
     subsection_canvas: CanvasRenderingContext2D
     alpha_enabled: boolean
@@ -38,7 +38,7 @@ export class skin_section {
 
         if (!overwrite_alpha && c.a !== 100) {
             const rgba = this.output_canvas.getImageData(x + this.u, y + this.v, 1, 1).data
-            this.pixel_cache[x + y * this.width] = color.from_rgba(rgba[0], rgba[1], rgba[2], rgba[3] * 100 / 255)
+            this.pixel_cache[x + y * this.width] = color.rgb(rgba[0], rgba[1], rgba[2], rgba[3])
         } else {
             this.pixel_cache[x + y * this.width] = c.copy()
         }
@@ -60,7 +60,7 @@ export class skin_section {
         canvas.height = this.height
         let subsection = this.output_canvas.getImageData(this.u, this.v, this.width, this.height)
         canvas.getContext('2d').putImageData(subsection, 0, 0)
-        
+
         alpha_enabled.set(this.alpha_enabled)
     }
 
@@ -75,7 +75,7 @@ export class skin_section {
         this.pixel_cache = []
         for (let x = 0; x < this.width; x++)
             for (let y = 0; y < this.height; y++) {
-                this.pixel_cache[x + y * this.width] = color.from_rgba(
+                this.pixel_cache[x + y * this.width] = color.rgb(
                     data[(x + y * this.width) * 4],
                     data[(x + y * this.width) * 4 + 1],
                     data[(x + y * this.width) * 4 + 2],
@@ -94,12 +94,12 @@ class limb_layer {
     bottom: skin_section
 
     constructor(width: number, height: number, depth: number, u: number, v: number, output_canvas: CanvasRenderingContext2D, on_update: () => void, transparent = false) {
-        this.top    = new skin_section(width, depth,  u + depth,             v,         output_canvas, on_update, transparent)
-        this.bottom = new skin_section(width, depth,  u + depth + width,     v,         output_canvas, on_update, transparent)
-        this.right  = new skin_section(depth, height, u,                     v + depth, output_canvas, on_update, transparent)
-        this.front  = new skin_section(width, height, u + depth,             v + depth, output_canvas, on_update, transparent)
-        this.left   = new skin_section(depth, height, u + depth + width,     v + depth, output_canvas, on_update, transparent)
-        this.back   = new skin_section(width, height, u + 2 * depth + width, v + depth, output_canvas, on_update, transparent)
+        this.top = new skin_section(width, depth, u + depth, v, output_canvas, on_update, transparent)
+        this.bottom = new skin_section(width, depth, u + depth + width, v, output_canvas, on_update, transparent)
+        this.right = new skin_section(depth, height, u, v + depth, output_canvas, on_update, transparent)
+        this.front = new skin_section(width, height, u + depth, v + depth, output_canvas, on_update, transparent)
+        this.left = new skin_section(depth, height, u + depth + width, v + depth, output_canvas, on_update, transparent)
+        this.back = new skin_section(width, height, u + 2 * depth + width, v + depth, output_canvas, on_update, transparent)
     }
 
     set_width(width: number) {
@@ -144,7 +144,7 @@ class limb_pair {
 }
 
 const skin_uvs = {
-    head_iu: 0,  head_iv: 0,
+    head_iu: 0, head_iv: 0,
     head_ou: 32, head_ov: 0,
     body_iu: 16, body_iv: 16,
     body_ou: 16, body_ov: 32,
@@ -152,10 +152,10 @@ const skin_uvs = {
     rarm_ou: 40, rarm_ov: 32,
     larm_iu: 32, larm_iv: 48,
     larm_ou: 48, larm_ov: 48,
-    rleg_iu: 0,  rleg_iv: 16,
-    rleg_ou: 0,  rleg_ov: 32,
+    rleg_iu: 0, rleg_iv: 16,
+    rleg_ou: 0, rleg_ov: 32,
     lleg_iu: 16, lleg_iv: 48,
-    lleg_ou: 0,  lleg_ov: 48,
+    lleg_ou: 0, lleg_ov: 48,
 }
 
 let section: skin_section
@@ -170,7 +170,7 @@ export default class skin {
     legs: limb_pair
     private alex: boolean
     private subscribers: (() => void)[]
-    
+
     output_canvas: CanvasRenderingContext2D
 
     constructor(slim: boolean = false) {
@@ -203,14 +203,16 @@ export default class skin {
         })
     }
 
-    limbs() { return {
-        head: this.head,
-        body: this.body,
-        'right arm': this.arms.right,
-        'left arm': this.arms.left,
-        'right leg': this.legs.right,
-        'left leg': this.legs.left
-    }}
+    limbs() {
+        return {
+            head: this.head,
+            body: this.body,
+            'right arm': this.arms.right,
+            'left arm': this.arms.left,
+            'right leg': this.legs.right,
+            'left leg': this.legs.left
+        }
+    }
 
     get_image_url(): string { return this.output_canvas.canvas.toDataURL(); }
 
