@@ -26,7 +26,7 @@ export class skin_section {
         const subsection = document.createElement('canvas')
         subsection.width = width
         subsection.height = height
-        this.subsection_canvas = subsection.getContext('2d')!
+        this.subsection_canvas = subsection.getContext('2d', { willReadFrequently: true })!
 
         this.clear()
     }
@@ -56,11 +56,11 @@ export class skin_section {
         return this.pixel_cache[x + y * this.width]
     }
 
-    load(canvas: HTMLCanvasElement) {
-        canvas.width = this.width
-        canvas.height = this.height
+    load(ctx: CanvasRenderingContext2D) {
+        ctx.canvas.width = this.width
+        ctx.canvas.height = this.height
         let subsection = this.output_canvas.getImageData(this.u, this.v, this.width, this.height)
-        canvas.getContext('2d')!.putImageData(subsection, 0, 0)
+        ctx.putImageData(subsection, 0, 0)
 
         alpha_enabled.set(this.alpha_enabled)
     }
@@ -179,7 +179,7 @@ export default class skin {
         const output = document.createElement("canvas")
         output.width = 64
         output.height = 64
-        this.output_canvas = output.getContext("2d")!
+        this.output_canvas = output.getContext("2d", { willReadFrequently: true })!
         this.subscribers = []
 
         this.head = new limb(8, 8, 8, skin_uvs.head_iu, skin_uvs.head_iv, skin_uvs.head_ou, skin_uvs.head_ov, this.output_canvas, this.on_update.bind(this))

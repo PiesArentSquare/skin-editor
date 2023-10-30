@@ -44,7 +44,7 @@
     })
 
     $: if ($current_section && html_element) {
-        $current_section.load(html_element)
+        $current_section.load(ctx)
         ur_stack = new undo_redo_stack
         resizer.on_presize()
         resizer.on_resize()
