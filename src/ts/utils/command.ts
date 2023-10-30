@@ -38,6 +38,10 @@ export class command_group implements i_command {
         return this.stack.length === 0
     }
 
+    size(): number {
+        return this.stack.length
+    }
+
 }
 
 export class undo_redo_stack {

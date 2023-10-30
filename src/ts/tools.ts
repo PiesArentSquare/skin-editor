@@ -80,7 +80,7 @@ export class fill_tool implements i_tool {
 
     private fill_impl(x: number, y: number, old: color, canvas: i_canvas): void {
         if (x < 0 || x >= section.width || y < 0 || y >= section.height) return
-        if (!canvas.get_pixel(x, y).equals(old)) return
+        if (!canvas.get_pixel(x, y).equals(old) || this.pixels.size() >= section.width * section.height) return
         this.pixels.add(new paint_pixel(canvas, x, y, current))
 
         this.fill_impl(x - 1, y, old, canvas)

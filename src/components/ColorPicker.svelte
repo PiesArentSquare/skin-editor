@@ -48,7 +48,7 @@
             <DualSlider bind:x={s} bind:y={v} name="sv"/>
             <VerticalSlider bind:value={h} max={359} name="hue"/>
             {#if enablealpha}
-            <VerticalSlider bind:value={a} inverted name="alpha"/>
+            <VerticalSlider bind:value={a} max={255} inverted name="alpha"/>
             {/if}
         </div>
         <div class="input-area">
