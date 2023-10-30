@@ -41,11 +41,12 @@
     onMount(() => {
         ctx = html_element.getContext('2d', { willReadFrequently: true })!
         border_width = parseFloat(window.getComputedStyle(html_element).borderWidth.split('px')[0])
+        current_section.subscribe(load_section)
     })
 
-    $: if ($current_section && html_element) {
+    function load_section() {
         $current_section.load(ctx)
-        ur_stack = new undo_redo_stack
+        ur_stack.clear()
         resizer.on_presize()
         resizer.on_resize()
     }
@@ -94,7 +95,8 @@
 
     function finish() {
         const c = current_tool?.finish(canvas)
-        if (c && !(<command_group>c).is_empty()) ur_stack.append(c)
+        if (c && !(<command_group>c).is_empty())
+            ur_stack.append(c)
         painting = false
     }
 

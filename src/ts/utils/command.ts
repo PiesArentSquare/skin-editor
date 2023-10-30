@@ -11,7 +11,7 @@ export class command_group implements i_command {
         c.do()
         this.stack.push(c)
     }
-    
+
     do(): void {
         this.stack.forEach(c => {
             c.do()
@@ -60,5 +60,10 @@ export class undo_redo_stack {
 
     redo() {
         if (this.live_size < this.stack.length) this.stack[this.live_size++].do()
+    }
+
+    clear() {
+        this.live_size = 0
+        this.stack.length = 0
     }
 }
