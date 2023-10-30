@@ -135,13 +135,7 @@ export const colors = {
     transparent: color.rgb(0, 0, 0, 0)
 }
 
-enum subscribe_type {
-    hex = 1,
-    hsv = 2,
-    all = hex | hsv
-}
-
-type subscriber = [subscribe_type, (c: color) => void]
+type subscriber = (c: color) => void
 
 export function color_store(value: color) {
     let subscribers = new Set<subscriber>();
@@ -150,57 +144,15 @@ export function color_store(value: color) {
         if (!new_value.equals(value)) {
             value = new_value
             for (const sub of subscribers)
-                sub[1](value)
-        }
-    }
-
-    function set_hsva(h: number, s: number, v: number, a: number) {
-        const new_value = color.hsv(h, s, v, a)
-        if (!new_value.equals(value)) {
-            value = new_value
-            for (const sub of subscribers) {
-                if (sub[0] & subscribe_type.hsv)
-                    sub[1](value)
-            }
-        }
-    }
-
-    function set_hex(hex: string) {
-        const new_value = color.hex(hex)
-        if (!new_value.equals(value)) {
-            value = new_value
-            for (const sub of subscribers) {
-                if (sub[0] & subscribe_type.hsv)
-                    sub[1](value)
-            }
+                sub(value)
         }
     }
 
     function subscribe(run: (c: color) => void) {
-        const sub: subscriber = [subscribe_type.all, run]
-        subscribers.add(sub)
+        subscribers.add(run)
         run(value)
-        return () => subscribers.delete(sub)
+        return () => subscribers.delete(run)
     }
 
-    function subscribe_hsva(run: (h: number, s: number, v: number, a: number) => void) {
-        const r = (c: color) => {
-            const [h, s, v, a] = value.to_hsv()
-            run(h, s, v, a)
-        }
-        const sub: subscriber = [subscribe_type.hsv, r]
-        subscribers.add(sub)
-        r(value)
-        return () => subscribers.delete(sub)
-    }
-
-    function subscribe_hex(run: (hex: string) => void) {
-        const r = (c: color) => run(value.to_hex())
-        const sub: subscriber = [subscribe_type.hex, r]
-        subscribers.add(sub)
-        r(value)
-        return () => subscribers.delete(sub)
-    }
-
-    return { subscribe, subscribe_hex, subscribe_hsva, set, set_hex, set_hsva }
+    return { subscribe, set }
 }

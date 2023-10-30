@@ -9,41 +9,39 @@
     import click_outside from 'src/ts/utils/click_outside'
     
     export let enablealpha = true
-    // $: if (!enablealpha) $current_color.a = 255
-    
+
     let open = false
     let input_type = 'hsv'
-    
-    // $: hex = $current_color.to_hex()
-    // function set_color_from_hex() { $current_color = color.hex(hex) }
 
     let h: number, s: number, v: number, a: number
     let hex: string
     let color_string: string, full_alpha_string: string
 
-    current_color.subscribe_hsva((hue, sat, val, alp) => {
-        h = hue
-        s = sat
-        v = val
-        a = alp
-    })
-
-    current_color.subscribe_hex(hex_code => hex = hex_code)
-
     current_color.subscribe(c => {
-        color_string = c.to_string()
-        full_alpha_string = c.full_alpha_string()
+        [h, s, v, a] = c.to_hsv()
     })
 
     function set_color_from_hex() {
-        current_color.set_hex(hex)
+        current_color.set(color.hex(hex))
     }
 
-    $: current_color.set_hsva(h, s, v, a)
-    
+    $: {
+        const c = color.hsv(h, s, v, a) 
+        color_string = c.to_string()
+        full_alpha_string = c.full_alpha_string()
+        hex = c.to_hex();
+        
+    }
+
+    function set_visibility(visible: boolean) {
+        open = visible
+        if (!open)
+            current_color.set(color.hsv(h, s, v, a))
+    }
+
 </script>
 
-<div class="color-picker" style="color: {color_string}" on:click|self={() => open = !open} use:click_outside on:outclick={() => open = false}>
+<div class="color-picker" style="color: {color_string}" on:click|self={() => set_visibility(!open)} use:click_outside on:outclick={() => set_visibility(false)}>
 {#if open}
     <div class="picker-window">
         <div class="slider-area" style="--color:{color_string}; --color-noalpha:{full_alpha_string}; --hue:{h}">

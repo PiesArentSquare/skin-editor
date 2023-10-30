@@ -26,8 +26,6 @@
             const max_width = html_element.parentElement!.clientWidth - border_width * 2,
                 max_height = html_element.parentElement!.clientHeight - border_width * 2
 
-            console.log(max_height)
-
             const width_ratio = max_width / $current_section.width
             const height_ratio = max_height / $current_section.height
             const scale = width_ratio < height_ratio ? width_ratio : height_ratio

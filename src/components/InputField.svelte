@@ -36,7 +36,7 @@
 {:else}
     <input bind:this={input} type="text" id={name} bind:value={internal_value} on:focusout={finalize} on:focus={() => in_text_field.set(true)} on:keydown={onkeydown}/>
 {/if}
-    <label for="input">{name}</label>
+    <label for={name}>{name}</label>
 </div>
 
 <style lang=scss>
