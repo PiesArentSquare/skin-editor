@@ -11,8 +11,8 @@
     export const canvas: i_canvas = {
         paint_pixel,
         get_pixel,
-        undo: ur_stack.undo.bind(ur_stack),
-        redo: ur_stack.redo.bind(ur_stack),
+        undo: () => ur_stack.undo(),
+        redo: () => ur_stack.redo(),
         set current_tool(tool: i_tool) { current_tool = tool }
     }
 
